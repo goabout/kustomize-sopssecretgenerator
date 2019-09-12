@@ -6,29 +6,31 @@ that generates Secrets from files encrypted with [sops](https://github.com/mozil
 
 ## Installation
 
-Download the `SopsSecret` binary from the
+Download the `SopsSecret` binary for your platform from the
 [GitHub releases page](https://github.com/goabout/kustomize-sopssecret-plugin/releases) and
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/sopssecret`. (By default,
-`$XDG_CONFIG_HOME` points to `~/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
+`$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
+
+For example, to install version 1.0.0 on Linux:
 
     VERSION=1.0.0 PLATFORM=linux ARCH=amd64
-    wget https://github.com/goabout/kustomize-sopssecret-plugin/releases/download/v$VERSION/SopsSecret_$VERSION_$PLATFORM_$ARCH -O SopsSecret
+    wget https://github.com/goabout/kustomize-sopssecret-plugin/releases/download/v${VERSION}/SopsSecret_${VERSION}_${PLATFORM}_${ARCH} -O SopsSecret
     chmod +x SopsSecret
-    mkdir -p $XDG_CONFIG_HOME/kustomize/plugin/sopssecret
-    mv SopsSecret $XDG_CONFIG_HOME/kustomize/plugin/sopssecret
+    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/sopssecret"
+    mv SopsSecret "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/sopssecret"
 
 
 ## Usage
 
-Create some secrets using `sops`:
+Create some encrypted values using `sops`:
 
-    echo FOO=secret > secret-vars.env
+    echo FOO=secret >secret-vars.env
     sops -e -i secret-vars.env
     
-    echo secret secret-file.txt
+    echo secret >secret-file.txt
     sops -e -i secret-file.txt
 
-Add a generator resourcesto your kustomization:
+Add a generator resources to your kustomization:
 
     cat <<. >kustomization.yaml
     generators:
@@ -66,7 +68,7 @@ The `kustomize.config.k8s.io/needs-hash` annotation uses a feature from
 [kustomize #1473](https://github.com/kubernetes-sigs/kustomize/pull/1473) to add the content
 hash as a suffix to the Secret name, just as the builtin secretGenerator plugin does.
 If/when that PR is merged, annotations generated when using the `behavior` and
-`disableNameSuffixHash` options will also be supported.
+`disableNameSuffixHash` options will work as expected.
 
 An example showing all options:
 
@@ -78,7 +80,7 @@ An example showing all options:
         app: my-app
       annotations:
         create-by: me
-    behavior: create
+    behavior: merge
     disableNameSuffixHash: true
     envs:
       - secret-vars.env
