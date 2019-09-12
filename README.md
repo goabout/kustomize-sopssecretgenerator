@@ -1,6 +1,6 @@
 # kustomize-sopssecret-plugin
 
-An external plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
+An exec plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
 that generates Secrets from files encrypted with [sops](https://github.com/mozilla/sops).
 
 
@@ -94,6 +94,8 @@ An example showing all options:
 
 ## Build
 
+You will need [Go](https://golang.org) 1.12 or higher to build the plugin.
+
 Create a binary for your system:
 
     make
@@ -104,4 +106,4 @@ Make a release for all supported platforms:
 
     make release
     
-Binaries can be found in `releases/`.
+Binaries can be found in `releases`.
