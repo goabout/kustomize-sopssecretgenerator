@@ -28,7 +28,6 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a // indirect
 	go.mozilla.org/sops v0.0.0-20190611200209-e9e1e87723c8
-	go.mozilla.org/yaml.v2 v0.0.0-00010101000000-000000000000 // indirect
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7 // indirect
 	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b // indirect
 	google.golang.org/api v0.10.0 // indirect
