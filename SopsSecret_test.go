@@ -246,7 +246,7 @@ func Test_parseFileSources(t *testing.T) {
 
 func Test_parseInput(t *testing.T) {
 	type args struct {
-		input SopsSecret
+		input sopsSecret
 	}
 	tests := []struct {
 		name    string
@@ -288,19 +288,19 @@ func Test_parseJsonContent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := make(kvMap)
-			err := parseJsonContent(tt.args.content, got)
+			err := parseJSONContent(tt.args.content, got)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("parseJsonContent() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("parseJSONContent() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("parseJsonContent() got = %v, want %v", got, tt.want)
+				t.Errorf("parseJSONContent() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_parseYamlContent(t *testing.T) {
+func Test_parseYAMLContent(t *testing.T) {
 	type args struct {
 		content []byte
 	}
@@ -318,13 +318,13 @@ func Test_parseYamlContent(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got := make(kvMap)
-			err := parseYamlContent(tt.args.content, got)
+			err := parseYAMLContent(tt.args.content, got)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("parseYamlContent() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("parseYAMLContent() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("parseYamlContent() got = %v, want %v", got, tt.want)
+				t.Errorf("parseYAMLContent() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -337,7 +337,7 @@ func Test_readInput(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    SopsSecret
+		want    sopsSecret
 		wantErr bool
 	}{
 		// TODO: Add test cases.
