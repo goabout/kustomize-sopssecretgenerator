@@ -96,6 +96,10 @@ An example showing all options:
 
 You will need [Go](https://golang.org) 1.12 or higher to build the plugin.
 
+Run all tests:
+
+    make test
+
 Create a binary for your system:
 
     make

@@ -13,6 +13,10 @@ export GO111MODULE=on
 $(BINARY): SopsSecret.go
 	go build -o $@ $<
 
+.PHONY: test
+test:
+	go test -v ./...
+
 .PHONY: release
 release: $(releases)
 

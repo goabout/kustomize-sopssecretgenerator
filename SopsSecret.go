@@ -28,16 +28,18 @@ const kind = "SopsSecret"
 
 var utf8bom = []byte{0xEF, 0xBB, 0xBF}
 
+type kvMap map[string]string
+
 type TypeMeta struct {
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string `json:"kind" yaml:"kind"`
 }
 
 type ObjectMeta struct {
-	Name        string            `json:"name" yaml:"name"`
-	Namespace   string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
-	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+	Name        string `json:"name" yaml:"name"`
+	Namespace   string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	Labels      kvMap  `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Annotations kvMap  `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
 type SopsSecret struct {
@@ -53,13 +55,8 @@ type SopsSecret struct {
 type Secret struct {
 	TypeMeta   `json:",inline" yaml:",inline"`
 	ObjectMeta `json:"metadata" yaml:"metadata"`
-	Data       map[string]string `json:"data" yaml:"data"`
-	Type       string            `json:"type,omitempty" yaml:"type,omitempty"`
-}
-
-type Pair struct {
-	key   string
-	value string
+	Data       kvMap  `json:"data" yaml:"data"`
+	Type       string `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
 func main() {
@@ -113,7 +110,7 @@ func readInput(fn string) (SopsSecret, error) {
 	input := SopsSecret{
 		TypeMeta: TypeMeta{},
 		ObjectMeta: ObjectMeta{
-			Annotations: make(map[string]string),
+			Annotations: make(kvMap),
 		},
 	}
 	content, err := ioutil.ReadFile(fn)
@@ -134,8 +131,8 @@ func readInput(fn string) (SopsSecret, error) {
 	return input, nil
 }
 
-func parseInput(input SopsSecret) (map[string]string, error) {
-	data := make(map[string]string)
+func parseInput(input SopsSecret) (kvMap, error) {
+	data := make(kvMap)
 	err := parseEnvSources(input.EnvSources, data)
 	if err != nil {
 		return nil, err
@@ -147,7 +144,7 @@ func parseInput(input SopsSecret) (map[string]string, error) {
 	return data, nil
 }
 
-func parseEnvSources(sources []string, data map[string]string) error {
+func parseEnvSources(sources []string, data kvMap) error {
 	for _, source := range sources {
 		err := parseEnvSource(source, data)
 		if err != nil {
@@ -157,7 +154,7 @@ func parseEnvSources(sources []string, data map[string]string) error {
 	return nil
 }
 
-func parseEnvSource(source string, data map[string]string) error {
+func parseEnvSource(source string, data kvMap) error {
 	content, err := ioutil.ReadFile(source)
 	if err != nil {
 		return err
@@ -186,15 +183,16 @@ func parseEnvSource(source string, data map[string]string) error {
 	return nil
 }
 
-func parseDotEnvContent(content []byte, data map[string]string) error {
+func parseDotEnvContent(content []byte, data kvMap) error {
 	scanner := bufio.NewScanner(bytes.NewReader(content))
 	lineNum := 0
 	for scanner.Scan() {
 		line := scanner.Bytes()
+		// Strip UTF-8 byte order mark from first line
 		if lineNum == 0 {
 			line = bytes.TrimPrefix(line, utf8bom)
 		}
-		err := parseEnvLine(line, data)
+		err := parseDotEnvLine(line, data)
 		if err != nil {
 			return errors.Wrapf(err, "line %d", lineNum)
 		}
@@ -203,7 +201,7 @@ func parseDotEnvContent(content []byte, data map[string]string) error {
 	return nil
 }
 
-func parseEnvLine(line []byte, data map[string]string) error {
+func parseDotEnvLine(line []byte, data kvMap) error {
 	if !utf8.Valid(line) {
 		return fmt.Errorf("invalid UTF-8 bytes: %v", string(line))
 	}
@@ -223,8 +221,8 @@ func parseEnvLine(line []byte, data map[string]string) error {
 	return nil
 }
 
-func parseYamlContent(content []byte, data map[string]string) error {
-	d := make(map[string]string)
+func parseYamlContent(content []byte, data kvMap) error {
+	d := make(kvMap)
 	err := yaml.Unmarshal(content, d)
 	if err != nil {
 		return err
@@ -235,8 +233,8 @@ func parseYamlContent(content []byte, data map[string]string) error {
 	return nil
 }
 
-func parseJsonContent(content []byte, data map[string]string) error {
-	d := make(map[string]string)
+func parseJsonContent(content []byte, data kvMap) error {
+	d := make(kvMap)
 	err := json.Unmarshal(content, &d)
 	if err != nil {
 		return err
@@ -247,7 +245,7 @@ func parseJsonContent(content []byte, data map[string]string) error {
 	return nil
 }
 
-func parseFileSources(sources []string, data map[string]string) error {
+func parseFileSources(sources []string, data kvMap) error {
 	for _, source := range sources {
 		err := parseFileSource(source, data)
 		if err != nil {
@@ -257,7 +255,7 @@ func parseFileSources(sources []string, data map[string]string) error {
 	return nil
 }
 
-func parseFileSource(source string, data map[string]string) error {
+func parseFileSource(source string, data kvMap) error {
 	key, fn, err := parseFileName(source)
 	if err != nil {
 		return err
