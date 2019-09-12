@@ -5,4 +5,14 @@ go:
   - 1.13.x
   - master
 
+os:
+  - linux
+  - osx
+
 script: make test
+
+cache:
+  directories:
+    - $HOME/.cache/go-build
+    - $HOME/Library/Caches/go-build
+    - $HOME/gopath/pkg/mod
