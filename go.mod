@@ -4,6 +4,8 @@ go 1.12
 
 replace gopkg.in/urfave/cli.v1 => github.com/urfave/cli v1.21.0
 
+replace go.mozilla.org/yaml.v2 => gopkg.in/yaml.v2 v2.2.2
+
 require (
 	github.com/Azure/azure-sdk-for-go v33.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.9.1 // indirect
@@ -26,6 +28,7 @@ require (
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	go.mozilla.org/gopgagent v0.0.0-20170926210634-4d7ea76ff71a // indirect
 	go.mozilla.org/sops v0.0.0-20190611200209-e9e1e87723c8
+	go.mozilla.org/yaml.v2 v0.0.0-00010101000000-000000000000 // indirect
 	golang.org/x/crypto v0.0.0-20190911031432-227b76d455e7 // indirect
 	golang.org/x/net v0.0.0-20190909003024-a7b16738d86b // indirect
 	google.golang.org/api v0.10.0 // indirect
