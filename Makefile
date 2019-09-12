@@ -15,7 +15,11 @@ $(BINARY): SopsSecret.go
 
 .PHONY: test
 test:
-	go test -v ./...
+	go test -v -race
+
+.PHONY: test-coverage
+test-coverage:
+	go test -v -race -coverprofile=coverage.txt -covermode=atomic
 
 .PHONY: release
 release: $(releases)
