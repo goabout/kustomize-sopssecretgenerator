@@ -8,7 +8,9 @@ releases = $(patsubst %,$(RELEASE_DIR)/$(BINARY)_$(VERSION)_%_$(ARCH), $(PLATFOR
 platform = $(patsubst $(RELEASE_DIR)/$(BINARY)_$(VERSION)_%_$(ARCH),%, $@)
 
 
-$(BINARY): *.go
+export GO111MODULE=on
+
+$(BINARY): SopsSecret.go
 	go build -o $@ $<
 
 .PHONY: release
