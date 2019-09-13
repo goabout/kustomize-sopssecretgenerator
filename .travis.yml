@@ -9,9 +9,6 @@ os:
   - linux
   - osx
 
-before_script:
-  - gpg --import testdata/test-key.asc
-
 script:
   - make test-coverage
 
