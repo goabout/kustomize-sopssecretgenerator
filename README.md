@@ -3,7 +3,6 @@
 [![Build Status](https://travis-ci.org/goabout/kustomize-sopssecret-plugin.svg?branch=master)](https://travis-ci.org/goabout/kustomize-sopssecret-plugin)
 [![Go Report Card](https://goreportcard.com/badge/github.com/goabout/kustomize-sopssecret-plugin)](https://goreportcard.com/report/github.com/goabout/kustomize-sopssecret-plugin)
 [![Codecov](https://img.shields.io/codecov/c/github/goabout/kustomize-sopssecret-plugin)](https://codecov.io/gh/goabout/kustomize-sopssecret-plugin)
-[![Dependencies](https://img.shields.io/librariesio/github/goabout/kustomize-sopssecret-plugin)](https://libraries.io/github/goabout/kustomize-sopssecret-plugin)
 [![Latest Release](https://img.shields.io/github/v/release/goabout/kustomize-sopssecret-plugin?sort=semver)](https://github.com/goabout/kustomize-sopssecret-plugin/releases/latest)
 [![License](https://img.shields.io/github/license/goabout/kustomize-sopssecret-plugin)](https://github.com/goabout/kustomize-sopssecret-plugin/blob/master/LICENSE)
 
@@ -37,7 +36,7 @@ Create some encrypted values using `sops`:
     echo secret >secret-file.txt
     sops -e -i secret-file.txt
 
-Add a generator resources to your kustomization:
+Add a generator to your kustomization:
 
     cat <<. >kustomization.yaml
     generators:
