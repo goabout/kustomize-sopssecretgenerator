@@ -30,21 +30,21 @@ var utf8bom = []byte{0xEF, 0xBB, 0xBF}
 
 type kvMap map[string]string
 
-type typeMeta struct {
+type TypeMeta struct {
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string `json:"kind" yaml:"kind"`
 }
 
-type objectMeta struct {
+type ObjectMeta struct {
 	Name        string `json:"name" yaml:"name"`
 	Namespace   string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	Labels      kvMap  `json:"labels,omitempty" yaml:"labels,omitempty"`
 	Annotations kvMap  `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
-type sopsSecret struct {
-	typeMeta              `json:",inline" yaml:",inline"`
-	objectMeta            `json:"metadata" yaml:"metadata"`
+type SopsSecret struct {
+	TypeMeta              `json:",inline" yaml:",inline"`
+	ObjectMeta            `json:"metadata" yaml:"metadata"`
 	EnvSources            []string `json:"envs" yaml:"envs"`
 	FileSources           []string `json:"files" yaml:"files"`
 	Behavior              string   `json:"behavior,omitempty" yaml:"behavior,omitempty"`
@@ -52,9 +52,9 @@ type sopsSecret struct {
 	Type                  string   `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
-type secret struct {
-	typeMeta   `json:",inline" yaml:",inline"`
-	objectMeta `json:"metadata" yaml:"metadata"`
+type Secret struct {
+	TypeMeta   `json:",inline" yaml:",inline"`
+	ObjectMeta `json:"metadata" yaml:"metadata"`
 	Data       kvMap  `json:"data" yaml:"data"`
 	Type       string `json:"type,omitempty" yaml:"type,omitempty"`
 }
@@ -84,18 +84,18 @@ func generateSecret(fn string) (string, error) {
 	}
 
 	if !input.DisableNameSuffixHash {
-		input.objectMeta.Annotations["kustomize.config.k8s.io/needs-hash"] = "true"
+		input.ObjectMeta.Annotations["kustomize.config.k8s.io/needs-hash"] = "true"
 	}
 	if input.Behavior != "" {
-		input.objectMeta.Annotations["kustomize.config.k8s.io/behavior"] = input.Behavior
+		input.ObjectMeta.Annotations["kustomize.config.k8s.io/behavior"] = input.Behavior
 	}
 
-	sec := secret{
-		typeMeta: typeMeta{
+	sec := Secret{
+		TypeMeta: TypeMeta{
 			APIVersion: "v1",
 			Kind:       "Secret",
 		},
-		objectMeta: input.objectMeta,
+		ObjectMeta: input.ObjectMeta,
 		Data:       data,
 		Type:       input.Type,
 	}
@@ -106,32 +106,33 @@ func generateSecret(fn string) (string, error) {
 	return string(output), nil
 }
 
-func readInput(fn string) (sopsSecret, error) {
-	input := sopsSecret{
-		typeMeta: typeMeta{},
-		objectMeta: objectMeta{
+func readInput(fn string) (SopsSecret, error) {
+	content, err := ioutil.ReadFile(fn)
+	if err != nil {
+		return SopsSecret{}, err
+	}
+
+	input := SopsSecret{
+		TypeMeta: TypeMeta{},
+		ObjectMeta: ObjectMeta{
 			Annotations: make(kvMap),
 		},
 	}
-	content, err := ioutil.ReadFile(fn)
-	if err != nil {
-		return input, err
-	}
 	err = yaml.Unmarshal(content, &input)
 	if err != nil {
-		return input, err
+		return SopsSecret{}, err
 	}
 
 	if input.APIVersion != apiVersion || input.Kind != kind {
-		return input, errors.Errorf("input must be apiVersion %s, kind %s", apiVersion, kind)
+		return SopsSecret{}, errors.Errorf("input must be apiVersion %s, kind %s", apiVersion, kind)
 	}
 	if input.Name == "" {
-		return input, errors.New("input must contain metadata.name value")
+		return SopsSecret{}, errors.New("input must contain metadata.name value")
 	}
 	return input, nil
 }
 
-func parseInput(input sopsSecret) (kvMap, error) {
+func parseInput(input SopsSecret) (kvMap, error) {
 	data := make(kvMap)
 	err := parseEnvSources(input.EnvSources, data)
 	if err != nil {
@@ -223,7 +224,7 @@ func parseDotEnvLine(line []byte, data kvMap) error {
 
 func parseYAMLContent(content []byte, data kvMap) error {
 	d := make(kvMap)
-	err := yaml.Unmarshal(content, d)
+	err := yaml.Unmarshal(content, &d)
 	if err != nil {
 		return err
 	}

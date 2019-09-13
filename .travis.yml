@@ -9,7 +9,11 @@ os:
   - linux
   - osx
 
-script: make test-coverage
+before_script:
+  - gpg --import testdata/test-key.asc
+
+script:
+  - make test-coverage
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
