@@ -5,9 +5,31 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
+	"os"
 	"reflect"
+	"strings"
 	"testing"
+
+	"github.com/lithammer/dedent"
+	"github.com/pkg/errors"
+	"go.mozilla.org/sops/pgp"
 )
+
+const testkeyFingerprint = "2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4"
+const testkeyCrypttext = `
+-----BEGIN PGP MESSAGE-----
+
+hQEMA6z+tHR/duVIAQf/VO9SoP3PcDg7iZzm5CUQ1jgF6BGrJqL5azjF/D74I83t
+UalWAsewjd+xcKLBSnzr+uf90NcfIGpWx9u3IIyOZgIDkshp89jxz+mzj1MHsXM4
+/gMBzRwFoynYKtdFs6u5MnB/e4tw0tMkxgqp8tPog1FEEyWmGSV6WOpL0SOzc2mV
+PUA167We9+DLR8Yj9ABBEPpFDDq2bucOV9d3bkQS6+hWBbTPZMGcHvcupdDtALjv
+7FMKftz9FAoPNDSR4RXkXQSkD1jdNfx5d+SYxNyxR2IWk1pigkBzKPlL9BHFCHQD
+KCRtg392tGQ7WRY0s1J5GHHvnaDd+p0m3LWbUG28JtI7AZZSOue8gect+bw+Z5bO
+sDRQLEMprueQOkhMr/JzgWRCV8JYxRFOqXjl7PRBjmgNPMu2GzRIB8D/+SU=
+=7dAF
+-----END PGP MESSAGE-----
+`
 
 func b64(s string) string {
 	return base64.StdEncoding.EncodeToString([]byte(s))
@@ -33,7 +55,31 @@ func ss(envSources []string, fileSources []string) SopsSecret {
 	}
 }
 
-func Test_generateSecret(t *testing.T) {
+func setupGnuPG() error {
+	err := os.Setenv("GNUPGHOME", "testdata")
+	if err != nil {
+		return err
+	}
+	// Check whether the test key was loaded correctly
+	key := pgp.NewMasterKeyFromFingerprint(testkeyFingerprint)
+	key.EncryptedKey = testkeyCrypttext
+	_, err = key.Decrypt()
+	if err != nil {
+		return errors.Wrap(err, "PGP decryption check failed")
+	}
+	return nil
+}
+
+func TestMain(m *testing.M) {
+	err := setupGnuPG()
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	os.Exit(m.Run())
+}
+
+func Test_ProcessSopsSecret(t *testing.T) {
 	type args struct {
 		fn string
 	}
@@ -43,18 +89,116 @@ func Test_generateSecret(t *testing.T) {
 		want    string
 		wantErr bool
 	}{
-		// TODO: Add test cases.
+		{
+			"SopsSecret",
+			args{"testdata/sopssecret.yaml"},
+			strings.TrimLeft(dedent.Dedent(`
+				apiVersion: v1
+				kind: Secret
+				metadata:
+				  name: secret
+				data:
+				  file.txt: c2VjcmV0Cg==
+			`), "\n"),
+			false,
+		},
+		{"InvalidEnvs", args{"testdata/sopssecret-invalidenv.yaml"}, "", true},
+		{"MissingFile", args{"testdata/missing.yaml"}, "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := generateSecret(tt.args.fn)
+			got, err := processSopsSecret(tt.args.fn)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("generateSecret() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("processSopsSecret() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("generateSecret() got = %v, want %v", got, tt.want)
+				t.Errorf("processSopsSecret() got = %v, want %v", got, tt.want)
 			}
+		})
+	}
+}
+
+func Test_generateSecret(t *testing.T) {
+	type args struct {
+		sopsSecret SopsSecret
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    Secret
+		wantErr bool
+	}{
+		{
+			"Normal",
+			args{
+				SopsSecret{
+					TypeMeta: TypeMeta{
+						APIVersion: "goabout/v1beta1",
+						Kind:       "SopsSecret",
+					},
+					ObjectMeta: ObjectMeta{
+						Name:        "secret",
+						Namespace:   "default",
+						Labels:      kvMap{"label": "value"},
+						Annotations: kvMap{"annotation": "value"},
+					},
+					Behavior:    "merge",
+					EnvSources:  []string{"testdata/vars.env"},
+					FileSources: []string{"testdata/file.txt"},
+					Type:        "Oblique",
+				},
+			},
+			Secret{
+				TypeMeta: TypeMeta{
+					APIVersion: "v1",
+					Kind:       "Secret",
+				},
+				ObjectMeta: ObjectMeta{
+					Name:      "secret",
+					Namespace: "default",
+					Labels:    kvMap{"label": "value"},
+					Annotations: kvMap{
+						"annotation":                         "value",
+						"kustomize.config.k8s.io/needs-hash": "true",
+						"kustomize.config.k8s.io/behavior":   "merge",
+					},
+				},
+				Data: kvMap{"VAR_ENV": b64("val_env"), "file.txt": b64("secret\n")},
+				Type: "Oblique",
+			},
+			false,
+		},
+		{
+			"InvalidSources",
+			args{
+				SopsSecret{
+					TypeMeta: TypeMeta{
+						APIVersion: "goabout/v1beta1",
+						Kind:       "SopsSecret",
+					},
+					ObjectMeta: ObjectMeta{
+						Name: "secret",
+					},
+					FileSources: []string{"testdata/missing.txt"},
+				},
+			},
+			Secret{},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Run(tt.name, func(t *testing.T) {
+				got, err := generateSecret(tt.args.sopsSecret)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("generateSecret() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("generateSecret() got = %v, want %v", got, tt.want)
+				}
+			})
 		})
 	}
 }

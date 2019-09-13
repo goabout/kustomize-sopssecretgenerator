@@ -99,13 +99,28 @@ An example showing all options:
     type: Oblique
 
 
-## Build
+## Development
 
-You will need [Go](https://golang.org) 1.12 or higher to build the plugin.
+You will need [Go](https://golang.org) 1.12 or higher to develop and build the plugin.
+
+
+### Test
 
 Run all tests:
 
     make test
+
+In order to create encrypted test data, you need to import the secret key from `testdata/keyring.gpg` into
+your GPG keyring once:
+
+    gpg --import testdata/keyring.gpg
+    
+You can then use [sops](https://github.com/mozilla/sops) to create encrypted files:
+
+    sops -e -i newfile.txt
+
+
+### Build
 
 Create a binary for your system:
 
@@ -113,7 +128,14 @@ Create a binary for your system:
     
 The resulting executable will be named `SopsPlugin`.
 
-Make a release for all supported platforms:
+
+### Release
+
+First create a Git tag for the release:
+
+    git tag -a v$VERSION
+
+Then make releases for all supported platforms:
 
     make release
     

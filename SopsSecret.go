@@ -30,11 +30,13 @@ var utf8bom = []byte{0xEF, 0xBB, 0xBF}
 
 type kvMap map[string]string
 
+// TypeMeta defines the resource type
 type TypeMeta struct {
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string `json:"kind" yaml:"kind"`
 }
 
+// ObjectMeta contains Kubernetes resource metadata such as the name
 type ObjectMeta struct {
 	Name        string `json:"name" yaml:"name"`
 	Namespace   string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
@@ -42,6 +44,7 @@ type ObjectMeta struct {
 	Annotations kvMap  `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
+// SopsSecret is a generator for Secrets
 type SopsSecret struct {
 	TypeMeta              `json:",inline" yaml:",inline"`
 	ObjectMeta            `json:"metadata" yaml:"metadata"`
@@ -52,6 +55,7 @@ type SopsSecret struct {
 	Type                  string   `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
+// Secret is a Kubernetes Secret
 type Secret struct {
 	TypeMeta   `json:",inline" yaml:",inline"`
 	ObjectMeta `json:"metadata" yaml:"metadata"`
@@ -65,7 +69,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	output, err := generateSecret(os.Args[1])
+	output, err := processSopsSecret(os.Args[1])
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(2)
@@ -73,37 +77,54 @@ func main() {
 	fmt.Println(output)
 }
 
-func generateSecret(fn string) (string, error) {
+func processSopsSecret(fn string) (string, error) {
 	input, err := readInput(fn)
 	if err != nil {
 		return "", err
 	}
-	data, err := parseInput(input)
+	secret, err := generateSecret(input)
 	if err != nil {
 		return "", err
 	}
-
-	if !input.DisableNameSuffixHash {
-		input.ObjectMeta.Annotations["kustomize.config.k8s.io/needs-hash"] = "true"
-	}
-	if input.Behavior != "" {
-		input.ObjectMeta.Annotations["kustomize.config.k8s.io/behavior"] = input.Behavior
-	}
-
-	sec := Secret{
-		TypeMeta: TypeMeta{
-			APIVersion: "v1",
-			Kind:       "Secret",
-		},
-		ObjectMeta: input.ObjectMeta,
-		Data:       data,
-		Type:       input.Type,
-	}
-	output, err := yaml.Marshal(sec)
+	output, err := yaml.Marshal(secret)
 	if err != nil {
 		return "", err
 	}
 	return string(output), nil
+}
+
+func generateSecret(sopsSecret SopsSecret) (Secret, error) {
+	data, err := parseInput(sopsSecret)
+	if err != nil {
+		return Secret{}, err
+	}
+
+	annotations := make(kvMap)
+	for k, v := range sopsSecret.Annotations {
+		annotations[k] = v
+	}
+	if !sopsSecret.DisableNameSuffixHash {
+		annotations["kustomize.config.k8s.io/needs-hash"] = "true"
+	}
+	if sopsSecret.Behavior != "" {
+		annotations["kustomize.config.k8s.io/behavior"] = sopsSecret.Behavior
+	}
+
+	secret := Secret{
+		TypeMeta: TypeMeta{
+			APIVersion: "v1",
+			Kind:       "Secret",
+		},
+		ObjectMeta: ObjectMeta{
+			Name:        sopsSecret.Name,
+			Namespace:   sopsSecret.Namespace,
+			Labels:      sopsSecret.Labels,
+			Annotations: annotations,
+		},
+		Data: data,
+		Type: sopsSecret.Type,
+	}
+	return secret, nil
 }
 
 func readInput(fn string) (SopsSecret, error) {
