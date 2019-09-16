@@ -14,7 +14,7 @@ that generates Secrets from files encrypted with [sops](https://github.com/mozil
 
 Download the `SopsSecret` binary for your platform from the
 [GitHub releases page](https://github.com/goabout/kustomize-sopssecret-plugin/releases) and
-move it to `$XDG_CONFIG_HOME/kustomize/plugin/sopssecret`. (By default,
+move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecret`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
 
 For example, to install version 1.0.0 on Linux:
@@ -46,6 +46,7 @@ Add a generator to your kustomization:
     cat <<. >generator.yaml
     apiVersion: goabout.com/v1beta1
     kind: SopsSecret
+    disableNameSuffixHash: true
     metadata:
       name: my-secret
     envs:
@@ -66,15 +67,12 @@ The output is a Kubernetes secret containing the decrypted data:
       secret-file.txt: c2VjcmV0Cg==
     kind: Secret
     metadata:
-      annotations:
-        kustomize.config.k8s.io/needs-hash: "true"
       name: my-secret
 
-The `kustomize.config.k8s.io/needs-hash` annotation uses a feature from
-[kustomize #1473](https://github.com/kubernetes-sigs/kustomize/pull/1473) to add the content
-hash as a suffix to the Secret name, just as the builtin secretGenerator plugin does.
-If/when that PR is merged, annotations generated when using the `behavior` and
-`disableNameSuffixHash` options will work as expected.
+If you omit `disableNameSuffixHash`, the `kustomize.config.k8s.io/needs-hash` annotation added,
+anticipating [kustomize #1473](https://github.com/kubernetes-sigs/kustomize/pull/1473). That PR
+uses annotations to allow the `disableNameSuffixHash` and `behavior` options to work just as for
+the builtin SecretGenerator plugin.
 
 An example showing all options:
 
