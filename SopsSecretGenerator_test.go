@@ -31,28 +31,15 @@ sDRQLEMprueQOkhMr/JzgWRCV8JYxRFOqXjl7PRBjmgNPMu2GzRIB8D/+SU=
 -----END PGP MESSAGE-----
 `
 
-func b64(s string) string {
-	return base64.StdEncoding.EncodeToString([]byte(s))
-}
+// Test suite setup
 
-func b(s string) []byte {
-	return []byte(s)
-}
-
-func ss(envSources []string, fileSources []string) SopsSecret {
-	return SopsSecret{
-		TypeMeta: TypeMeta{
-			APIVersion: apiVersion,
-			Kind:       kind,
-		},
-		ObjectMeta: ObjectMeta{
-			Name:        "secret",
-			Annotations: kvMap{},
-		},
-		DisableNameSuffixHash: true,
-		EnvSources:            envSources,
-		FileSources:           fileSources,
+func TestMain(m *testing.M) {
+	err := setupGnuPG()
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
+	os.Exit(m.Run())
 }
 
 func setupGnuPG() error {
@@ -70,16 +57,9 @@ func setupGnuPG() error {
 	return nil
 }
 
-func TestMain(m *testing.M) {
-	err := setupGnuPG()
-	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-	os.Exit(m.Run())
-}
+// Tests
 
-func Test_ProcessSopsSecret(t *testing.T) {
+func Test_ProcessSopsSecretGenerator(t *testing.T) {
 	type args struct {
 		fn string
 	}
@@ -90,8 +70,8 @@ func Test_ProcessSopsSecret(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"SopsSecret",
-			args{"testdata/sopssecret.yaml"},
+			"SopsSecretGenerator",
+			args{"testdata/generator.yaml"},
 			strings.TrimLeft(dedent.Dedent(`
 				apiVersion: v1
 				kind: Secret
@@ -102,18 +82,18 @@ func Test_ProcessSopsSecret(t *testing.T) {
 			`), "\n"),
 			false,
 		},
-		{"InvalidEnvs", args{"testdata/sopssecret-invalidenv.yaml"}, "", true},
+		{"InvalidEnvs", args{"testdata/generator-invalidenv.yaml"}, "", true},
 		{"MissingFile", args{"testdata/missing.yaml"}, "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := processSopsSecret(tt.args.fn)
+			got, err := processSopsSecretGenerator(tt.args.fn)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("processSopsSecret() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("processSopsSecretGenerator() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
-				t.Errorf("processSopsSecret() got = %v, want %v", got, tt.want)
+				t.Errorf("processSopsSecretGenerator() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -121,7 +101,7 @@ func Test_ProcessSopsSecret(t *testing.T) {
 
 func Test_generateSecret(t *testing.T) {
 	type args struct {
-		sopsSecret SopsSecret
+		sopsSecret SopsSecretGenerator
 	}
 	tests := []struct {
 		name    string
@@ -132,10 +112,10 @@ func Test_generateSecret(t *testing.T) {
 		{
 			"Normal",
 			args{
-				SopsSecret{
+				SopsSecretGenerator{
 					TypeMeta: TypeMeta{
 						APIVersion: "goabout/v1beta1",
-						Kind:       "SopsSecret",
+						Kind:       "SopsSecretGenerator",
 					},
 					ObjectMeta: ObjectMeta{
 						Name:        "secret",
@@ -172,10 +152,10 @@ func Test_generateSecret(t *testing.T) {
 		{
 			"InvalidSources",
 			args{
-				SopsSecret{
+				SopsSecretGenerator{
 					TypeMeta: TypeMeta{
 						APIVersion: "goabout/v1beta1",
-						Kind:       "SopsSecret",
+						Kind:       "SopsSecretGenerator",
 					},
 					ObjectMeta: ObjectMeta{
 						Name: "secret",
@@ -210,15 +190,16 @@ func Test_readInput(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    SopsSecret
+		want    SopsSecretGenerator
 		wantErr bool
 	}{
-		{"SopsSecret", args{"testdata/sopssecret.yaml"}, ss(nil, []string{"testdata/file.txt"}), false},
-		{"Missing", args{"testdata/missing.yaml"}, SopsSecret{}, true},
-		{"NotYaml", args{"testdata/notyaml.txt"}, SopsSecret{}, true},
-		{"WrongVersion", args{"testdata/sopssecret-wrongversion.yaml"}, SopsSecret{}, true},
-		{"WrongKind", args{"testdata/sopssecret-wrongkind.yaml"}, SopsSecret{}, true},
-		{"NoName", args{"testdata/sopssecret-noname.yaml"}, SopsSecret{}, true},
+		{"SopsSecretGenerator", args{"testdata/generator.yaml"}, ssg(nil, []string{"testdata/file.txt"}), false},
+		{"SopsSecret", args{"testdata/generator-oldkind.yaml"}, ssg(nil, []string{"testdata/file.txt"}), false},
+		{"Missing", args{"testdata/missing.yaml"}, SopsSecretGenerator{}, true},
+		{"NotYaml", args{"testdata/notyaml.txt"}, SopsSecretGenerator{}, true},
+		{"WrongVersion", args{"testdata/generator-wrongversion.yaml"}, SopsSecretGenerator{}, true},
+		{"WrongKind", args{"testdata/generator-wrongkind.yaml"}, SopsSecretGenerator{}, true},
+		{"NoName", args{"testdata/generator-noname.yaml"}, SopsSecretGenerator{}, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -236,7 +217,7 @@ func Test_readInput(t *testing.T) {
 
 func Test_parseInput(t *testing.T) {
 	type args struct {
-		input SopsSecret
+		input SopsSecretGenerator
 	}
 	tests := []struct {
 		name    string
@@ -244,9 +225,9 @@ func Test_parseInput(t *testing.T) {
 		want    kvMap
 		wantErr bool
 	}{
-		{"Input", args{ss([]string{"testdata/vars.env"}, []string{"testdata/file.txt"})}, kvMap{"VAR_ENV": b64("val_env"), "file.txt": b64("secret\n")}, false},
-		{"EnvsError", args{ss([]string{"testdata/file.txt"}, []string{"testdata/file.txt"})}, nil, true},
-		{"FilesError", args{ss([]string{"testdata/vars.env"}, []string{"testdata/missing.txt"})}, nil, true},
+		{"Input", args{ssg([]string{"testdata/vars.env"}, []string{"testdata/file.txt"})}, kvMap{"VAR_ENV": b64("val_env"), "file.txt": b64("secret\n")}, false},
+		{"EnvsError", args{ssg([]string{"testdata/file.txt"}, []string{"testdata/file.txt"})}, nil, true},
+		{"FilesError", args{ssg([]string{"testdata/vars.env"}, []string{"testdata/missing.txt"})}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -560,5 +541,31 @@ func Test_formatForPath(t *testing.T) {
 				t.Errorf("formatForPath() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+// Test util functions
+
+func b64(s string) string {
+	return base64.StdEncoding.EncodeToString([]byte(s))
+}
+
+func b(s string) []byte {
+	return []byte(s)
+}
+
+func ssg(envSources []string, fileSources []string) SopsSecretGenerator {
+	return SopsSecretGenerator{
+		TypeMeta: TypeMeta{
+			APIVersion: apiVersion,
+			Kind:       kind,
+		},
+		ObjectMeta: ObjectMeta{
+			Name:        "secret",
+			Annotations: kvMap{},
+		},
+		DisableNameSuffixHash: true,
+		EnvSources:            envSources,
+		FileSources:           fileSources,
 	}
 }

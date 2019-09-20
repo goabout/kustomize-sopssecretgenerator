@@ -1,4 +1,4 @@
-module github.com/goabout/kustomize-sops-plugin
+module github.com/goabout/kustomize-sopssecretgenerator
 
 go 1.12
 

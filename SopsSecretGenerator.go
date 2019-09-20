@@ -24,7 +24,8 @@ import (
 )
 
 const apiVersion = "goabout.com/v1beta1"
-const kind = "SopsSecret"
+const kind = "SopsSecretGenerator"
+const oldKind = "SopsSecret"
 
 var utf8bom = []byte{0xEF, 0xBB, 0xBF}
 
@@ -44,8 +45,8 @@ type ObjectMeta struct {
 	Annotations kvMap  `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
-// SopsSecret is a generator for Secrets
-type SopsSecret struct {
+// SopsSecretGenerator is a generator for Secrets
+type SopsSecretGenerator struct {
 	TypeMeta              `json:",inline" yaml:",inline"`
 	ObjectMeta            `json:"metadata" yaml:"metadata"`
 	EnvSources            []string `json:"envs" yaml:"envs"`
@@ -65,19 +66,19 @@ type Secret struct {
 
 func main() {
 	if len(os.Args) != 2 {
-		_, _ = fmt.Fprintln(os.Stderr, "usage: SopsSecret FILE")
+		_, _ = fmt.Fprintln(os.Stderr, "usage: SopsSecretGenerator FILE")
 		os.Exit(1)
 	}
 
-	output, err := processSopsSecret(os.Args[1])
+	output, err := processSopsSecretGenerator(os.Args[1])
 	if err != nil {
 		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(2)
 	}
-	fmt.Println(output)
+	fmt.Print(output)
 }
 
-func processSopsSecret(fn string) (string, error) {
+func processSopsSecretGenerator(fn string) (string, error) {
 	input, err := readInput(fn)
 	if err != nil {
 		return "", err
@@ -93,7 +94,7 @@ func processSopsSecret(fn string) (string, error) {
 	return string(output), nil
 }
 
-func generateSecret(sopsSecret SopsSecret) (Secret, error) {
+func generateSecret(sopsSecret SopsSecretGenerator) (Secret, error) {
 	data, err := parseInput(sopsSecret)
 	if err != nil {
 		return Secret{}, err
@@ -127,13 +128,13 @@ func generateSecret(sopsSecret SopsSecret) (Secret, error) {
 	return secret, nil
 }
 
-func readInput(fn string) (SopsSecret, error) {
+func readInput(fn string) (SopsSecretGenerator, error) {
 	content, err := ioutil.ReadFile(fn)
 	if err != nil {
-		return SopsSecret{}, err
+		return SopsSecretGenerator{}, err
 	}
 
-	input := SopsSecret{
+	input := SopsSecretGenerator{
 		TypeMeta: TypeMeta{},
 		ObjectMeta: ObjectMeta{
 			Annotations: make(kvMap),
@@ -141,19 +142,23 @@ func readInput(fn string) (SopsSecret, error) {
 	}
 	err = yaml.Unmarshal(content, &input)
 	if err != nil {
-		return SopsSecret{}, err
+		return SopsSecretGenerator{}, err
 	}
 
-	if input.APIVersion != apiVersion || input.Kind != kind {
-		return SopsSecret{}, errors.Errorf("input must be apiVersion %s, kind %s", apiVersion, kind)
+	if input.APIVersion != apiVersion || (input.Kind != kind && input.Kind != oldKind) {
+		return SopsSecretGenerator{}, errors.Errorf("input must be apiVersion %s, kind %s", apiVersion, kind)
 	}
 	if input.Name == "" {
-		return SopsSecret{}, errors.New("input must contain metadata.name value")
+		return SopsSecretGenerator{}, errors.New("input must contain metadata.name value")
+	}
+	// In the next major version, remove old kind compatibility
+	if input.Kind == oldKind {
+		input.Kind = kind
 	}
 	return input, nil
 }
 
-func parseInput(input SopsSecret) (kvMap, error) {
+func parseInput(input SopsSecretGenerator) (kvMap, error) {
 	data := make(kvMap)
 	err := parseEnvSources(input.EnvSources, data)
 	if err != nil {

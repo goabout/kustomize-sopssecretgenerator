@@ -1,29 +1,29 @@
-# kustomize-sopssecret-plugin
+# kustomize-sopssecretgenerator
 
-[![Build Status](https://travis-ci.org/goabout/kustomize-sopssecret-plugin.svg?branch=master)](https://travis-ci.org/goabout/kustomize-sopssecret-plugin)
-[![Go Report Card](https://goreportcard.com/badge/github.com/goabout/kustomize-sopssecret-plugin)](https://goreportcard.com/report/github.com/goabout/kustomize-sopssecret-plugin)
-[![Codecov](https://img.shields.io/codecov/c/github/goabout/kustomize-sopssecret-plugin)](https://codecov.io/gh/goabout/kustomize-sopssecret-plugin)
-[![Latest Release](https://img.shields.io/github/v/release/goabout/kustomize-sopssecret-plugin?sort=semver)](https://github.com/goabout/kustomize-sopssecret-plugin/releases/latest)
-[![License](https://img.shields.io/github/license/goabout/kustomize-sopssecret-plugin)](https://github.com/goabout/kustomize-sopssecret-plugin/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/goabout/kustomize-sopssecretgenerator.svg?branch=master)](https://travis-ci.org/goabout/kustomize-sopssecretgenerator)
+[![Go Report Card](https://goreportcard.com/badge/github.com/goabout/kustomize-sopssecretgenerator)](https://goreportcard.com/report/github.com/goabout/kustomize-sopssecretgenerator)
+[![Codecov](https://img.shields.io/codecov/c/github/goabout/kustomize-sopssecretgenerator)](https://codecov.io/gh/goabout/kustomize-sopssecretgenerator)
+[![Latest Release](https://img.shields.io/github/v/release/goabout/kustomize-sopssecretgenerator?sort=semver)](https://github.com/goabout/kustomize-sopssecretgenerator/releases/latest)
+[![License](https://img.shields.io/github/license/goabout/kustomize-sopssecretgenerator)](https://github.com/goabout/kustomize-sopssecretgenerator/blob/master/LICENSE)
 
-An exec plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
+An generator plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
 that generates Secrets from files encrypted with [sops](https://github.com/mozilla/sops).
 
 
 ## Installation
 
-Download the `SopsSecret` binary for your platform from the
-[GitHub releases page](https://github.com/goabout/kustomize-sopssecret-plugin/releases) and
-move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecret`. (By default,
+Download the `SopsSecretGenerator` binary for your platform from the
+[GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and
+move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
 
 For example, to install version 1.0.0 on Linux:
 
     VERSION=1.0.0 PLATFORM=linux ARCH=amd64
-    curl -Lo SopsSecret https://github.com/goabout/kustomize-sopssecret-plugin/releases/download/v${VERSION}/SopsSecret_${VERSION}_${PLATFORM}_${ARCH}
-    chmod +x SopsSecret
-    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecret"
-    mv SopsSecret "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecret"
+    curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
+    chmod +x SopsSecretGenerator
+    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
+    mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
 
 
 ## Usage
@@ -45,7 +45,7 @@ Add a generator to your kustomization:
 
     cat <<. >generator.yaml
     apiVersion: goabout.com/v1beta1
-    kind: SopsSecret
+    kind: SopsSecretGenerator
     disableNameSuffixHash: true
     metadata:
       name: my-secret
@@ -77,7 +77,7 @@ the builtin SecretGenerator plugin.
 An example showing all options:
 
     apiVersion: goabout.com/v1beta1
-    kind: SopsSecret
+    kind: SopsSecretGenerator
     metadata:
       name: my-secret
       labels:

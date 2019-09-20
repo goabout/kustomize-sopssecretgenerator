@@ -1,5 +1,7 @@
 apiVersion: goabout.com/v1beta1
-kind: SopsSecret
+kind: SopsSecretGenerator
+metadata:
+  name: secret
 disableNameSuffixHash: true
 files:
   - testdata/file.txt

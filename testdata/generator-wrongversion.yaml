@@ -1,5 +1,5 @@
 apiVersion: goabout.com/v1alpha
-kind: SopsSecret
+kind: SopsSecretGenerator
 metadata:
   name: secret
 disableNameSuffixHash: true

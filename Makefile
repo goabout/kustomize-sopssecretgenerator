@@ -1,4 +1,4 @@
-BINARY := SopsSecret
+BINARY := SopsSecretGenerator
 VERSION ?= $(shell (git describe --tags --always --dirty --match=v* 2>/dev/null || echo v0) | cut -c2-)
 PLATFORMS := windows linux darwin
 ARCH := amd64
@@ -10,7 +10,7 @@ platform = $(patsubst $(RELEASE_DIR)/$(BINARY)_$(VERSION)_%_$(ARCH),%, $@)
 
 export GO111MODULE=on
 
-$(BINARY): SopsSecret.go
+$(BINARY): SopsSecretGenerator.go
 	go build -o $@ $<
 
 .PHONY: test
@@ -24,7 +24,7 @@ test-coverage:
 .PHONY: release
 release: $(releases)
 
-$(releases): SopsSecret.go
+$(releases): SopsSecretGenerator.go
 	GOOS=$(platform) GOARCH=$(ARCH) go build -o $@ $<
 
 .PHONY: clean
