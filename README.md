@@ -123,7 +123,7 @@ Create a binary for your system:
 
     make
     
-The resulting executable will be named `SopsPlugin`.
+The resulting executable will be named `SopsSecretGenerator`.
 
 
 ### Release
