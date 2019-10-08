@@ -46,7 +46,6 @@ Add a generator to your kustomization:
     cat <<. >generator.yaml
     apiVersion: goabout.com/v1beta1
     kind: SopsSecretGenerator
-    disableNameSuffixHash: true
     metadata:
       name: my-secret
     envs:
@@ -67,12 +66,7 @@ The output is a Kubernetes secret containing the decrypted data:
       secret-file.txt: c2VjcmV0Cg==
     kind: Secret
     metadata:
-      name: my-secret
-
-If you omit `disableNameSuffixHash`, the `kustomize.config.k8s.io/needs-hash` annotation added,
-anticipating [kustomize #1473](https://github.com/kubernetes-sigs/kustomize/pull/1473). That PR
-uses annotations to allow the `disableNameSuffixHash` and `behavior` options to work just as for
-the builtin SecretGenerator plugin.
+      name: my-secret-g8m5mh84c2
 
 An example showing all options:
 
@@ -84,7 +78,7 @@ An example showing all options:
         app: my-app
       annotations:
         create-by: me
-    behavior: merge
+    behavior: create
     disableNameSuffixHash: true
     envs:
       - secret-vars.env
