@@ -1,4 +1,4 @@
-apiVersion: goabout.com/v1beta1
+apiVersion: kustomize.meiqia.com/v1beta1
 kind: SopsSecretGenerator
 disableNameSuffixHash: true
 files:

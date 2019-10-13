@@ -10,7 +10,7 @@ platform = $(patsubst $(RELEASE_DIR)/$(BINARY)_$(VERSION)_%_$(ARCH),%, $@)
 
 export GO111MODULE=on
 
-$(BINARY): SopsSecretGenerator.go
+$(BINARY): main.go
 	go build -o $@ $<
 
 .PHONY: test
@@ -24,8 +24,7 @@ test-coverage:
 .PHONY: release
 release: $(releases)
 
-$(releases): SopsSecretGenerator.go
-	GOOS=$(platform) GOARCH=$(ARCH) go build -o $@ $<
+$(releases): main.go
 	GOOS=$(platform) GOARCH=$(ARCH) go build -ldflags '-extldflags "-fno-PIC -static"' -tags 'osusergo netgo static_build' -o $@ $<
 
 .PHONY: clean

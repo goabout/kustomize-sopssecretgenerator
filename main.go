@@ -17,17 +17,17 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/dimchansky/utfbom"
 	"github.com/pkg/errors"
 	sopscommon "go.mozilla.org/sops/cmd/sops/common"
 	sopsdecrypt "go.mozilla.org/sops/decrypt"
 	"gopkg.in/yaml.v2"
 )
 
-const apiVersion = "goabout.com/v1beta1"
-const kind = "SopsSecretGenerator"
-const oldKind = "SopsSecret"
-
-var utf8bom = []byte{0xEF, 0xBB, 0xBF}
+const (
+	apiVersion = "kustomize.meiqia.com/v1beta1"
+	kind       = "SopsSecretGenerator"
+)
 
 type kvMap map[string]string
 
@@ -145,15 +145,11 @@ func readInput(fn string) (SopsSecretGenerator, error) {
 		return SopsSecretGenerator{}, err
 	}
 
-	if input.APIVersion != apiVersion || (input.Kind != kind && input.Kind != oldKind) {
+	if input.APIVersion != apiVersion || input.Kind != kind {
 		return SopsSecretGenerator{}, errors.Errorf("input must be apiVersion %s, kind %s", apiVersion, kind)
 	}
 	if input.Name == "" {
 		return SopsSecretGenerator{}, errors.New("input must contain metadata.name value")
-	}
-	// In the next major version, remove old kind compatibility
-	if input.Kind == oldKind {
-		input.Kind = kind
 	}
 	return input, nil
 }
@@ -211,26 +207,22 @@ func parseEnvSource(source string, data kvMap) error {
 }
 
 func parseDotEnvContent(content []byte, data kvMap) error {
-	scanner := bufio.NewScanner(bytes.NewReader(content))
+	scanner := bufio.NewScanner(utfbom.SkipOnly(bytes.NewReader(content)))
 	lineNum := 0
 	for scanner.Scan() {
 		line := scanner.Bytes()
-		// Strip UTF-8 byte order mark from first line
-		if lineNum == 0 {
-			line = bytes.TrimPrefix(line, utf8bom)
-		}
 		err := parseDotEnvLine(line, data)
 		if err != nil {
 			return errors.Wrapf(err, "line %d", lineNum)
 		}
 		lineNum++
 	}
-	return nil
+	return scanner.Err()
 }
 
 func parseDotEnvLine(line []byte, data kvMap) error {
 	if !utf8.Valid(line) {
-		return fmt.Errorf("invalid UTF-8 bytes: %v", string(line))
+		return errors.New("invalid utf8 sequence")
 	}
 
 	line = bytes.TrimLeftFunc(line, unicode.IsSpace)
@@ -302,20 +294,21 @@ func parseFileSource(source string, data kvMap) error {
 	return nil
 }
 
-func parseFileName(source string) (string, string, error) {
-	sepNum := strings.Count(source, "=")
-	switch {
-	case sepNum == 0:
+func parseFileName(source string) (key string, fn string, err error) {
+	components := strings.Split(source, "=")
+	switch len(components) {
+	case 1:
 		return path.Base(source), source, nil
-	case sepNum == 1 && strings.HasPrefix(source, "="):
-		return "", "", fmt.Errorf("key name for file path %v missing", strings.TrimPrefix(source, "="))
-	case sepNum == 1 && strings.HasSuffix(source, "="):
-		return "", "", fmt.Errorf("file path for key name %v missing", strings.TrimSuffix(source, "="))
-	case sepNum > 1:
-		return "", "", errors.New("key names or file paths cannot contain '='")
+	case 2:
+		key, fn = components[0], components[1]
+		if key == "" {
+			return "", "", fmt.Errorf("key name for file path %v missing", strings.TrimPrefix(source, "="))
+		} else if fn == "" {
+			return "", "", fmt.Errorf("file path for key name %v missing", strings.TrimSuffix(source, "="))
+		}
+		return key, fn, nil
 	default:
-		components := strings.Split(source, "=")
-		return components[0], components[1], nil
+		return "", "", errors.New("key names or file paths cannot contain '='")
 	}
 }
 
