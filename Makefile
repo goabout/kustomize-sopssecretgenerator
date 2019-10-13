@@ -26,6 +26,7 @@ release: $(releases)
 
 $(releases): SopsSecretGenerator.go
 	GOOS=$(platform) GOARCH=$(ARCH) go build -o $@ $<
+	GOOS=$(platform) GOARCH=$(ARCH) go build -ldflags '-extldflags "-fno-PIC -static"' -tags 'osusergo netgo static_build' -o $@ $<
 
 .PHONY: clean
 clean:
