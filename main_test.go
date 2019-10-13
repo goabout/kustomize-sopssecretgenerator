@@ -194,7 +194,6 @@ func Test_readInput(t *testing.T) {
 		wantErr bool
 	}{
 		{"SopsSecretGenerator", args{"testdata/generator.yaml"}, ssg(nil, []string{"testdata/file.txt"}), false},
-		{"SopsSecret", args{"testdata/generator-oldkind.yaml"}, ssg(nil, []string{"testdata/file.txt"}), false},
 		{"Missing", args{"testdata/missing.yaml"}, SopsSecretGenerator{}, true},
 		{"NotYaml", args{"testdata/notyaml.txt"}, SopsSecretGenerator{}, true},
 		{"WrongVersion", args{"testdata/generator-wrongversion.yaml"}, SopsSecretGenerator{}, true},
@@ -305,6 +304,8 @@ func Test_parseEnvSource(t *testing.T) {
 }
 
 func Test_parseDotEnvContent(t *testing.T) {
+	var utf8bom = []byte{0xef, 0xbb, 0xbf}
+
 	type args struct {
 		content []byte
 	}

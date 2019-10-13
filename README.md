@@ -14,7 +14,7 @@ that generates Secrets from files encrypted with [sops](https://github.com/mozil
 
 Download the `SopsSecretGenerator` binary for your platform from the
 [GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and
-move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
+move it to `$XDG_CONFIG_HOME/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
 
 For example, to install version 1.1.0 on Linux:
@@ -22,8 +22,8 @@ For example, to install version 1.1.0 on Linux:
     VERSION=1.1.0 PLATFORM=linux ARCH=amd64
     curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
     chmod +x SopsSecretGenerator
-    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
-    mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
+    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
+    mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
 
 
 ## Usage
@@ -44,7 +44,7 @@ Add a generator to your kustomization:
     .
 
     cat <<. >generator.yaml
-    apiVersion: goabout.com/v1beta1
+    apiVersion: kustomize.meiqia.com/v1beta1
     kind: SopsSecretGenerator
     metadata:
       name: my-secret
@@ -70,7 +70,7 @@ The output is a Kubernetes secret containing the decrypted data:
 
 An example showing all options:
 
-    apiVersion: goabout.com/v1beta1
+    apiVersion: kustomize.meiqia.com/v1beta1
     kind: SopsSecretGenerator
     metadata:
       name: my-secret
