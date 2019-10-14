@@ -225,7 +225,7 @@ func parseDotEnvContent(content []byte, data kvMap) error {
 		}
 		lineNum++
 	}
-	return nil
+	return scanner.Err()
 }
 
 func parseDotEnvLine(line []byte, data kvMap) error {
