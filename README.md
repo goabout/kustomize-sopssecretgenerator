@@ -1,10 +1,10 @@
 # kustomize-sopssecretgenerator
 
-[![Build Status](https://travis-ci.org/goabout/kustomize-sopssecretgenerator.svg?branch=master)](https://travis-ci.org/goabout/kustomize-sopssecretgenerator)
-[![Go Report Card](https://goreportcard.com/badge/github.com/goabout/kustomize-sopssecretgenerator)](https://goreportcard.com/report/github.com/goabout/kustomize-sopssecretgenerator)
-[![Codecov](https://img.shields.io/codecov/c/github/goabout/kustomize-sopssecretgenerator)](https://codecov.io/gh/goabout/kustomize-sopssecretgenerator)
-[![Latest Release](https://img.shields.io/github/v/release/goabout/kustomize-sopssecretgenerator?sort=semver)](https://github.com/goabout/kustomize-sopssecretgenerator/releases/latest)
-[![License](https://img.shields.io/github/license/goabout/kustomize-sopssecretgenerator)](https://github.com/goabout/kustomize-sopssecretgenerator/blob/master/LICENSE)
+[![Build Status](https://travis-ci.org/Meiqia/kustomize-sopssecretgenerator.svg?branch=master)](https://travis-ci.org/Meiqia/kustomize-sopssecretgenerator)
+[![Go Report Card](https://goreportcard.com/badge/github.com/Meiqia/kustomize-sopssecretgenerator)](https://goreportcard.com/report/github.com/Meiqia/kustomize-sopssecretgenerator)
+[![Codecov](https://img.shields.io/codecov/c/github/Meiqia/kustomize-sopssecretgenerator)](https://codecov.io/gh/Meiqia/kustomize-sopssecretgenerator)
+[![Latest Release](https://img.shields.io/github/v/release/Meiqia/kustomize-sopssecretgenerator?sort=semver)](https://github.com/Meiqia/kustomize-sopssecretgenerator/releases/latest)
+[![License](https://img.shields.io/github/license/Meiqia/kustomize-sopssecretgenerator)](https://github.com/Meiqia/kustomize-sopssecretgenerator/blob/master/LICENSE)
 
 An generator plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
 that generates Secrets from files encrypted with [sops](https://github.com/mozilla/sops).
@@ -13,14 +13,14 @@ that generates Secrets from files encrypted with [sops](https://github.com/mozil
 ## Installation
 
 Download the `SopsSecretGenerator` binary for your platform from the
-[GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and
+[GitHub releases page](https://github.com/Meiqia/kustomize-sopssecretgenerator/releases) and
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
 
 For example, to install version 1.1.0 on Linux:
 
     VERSION=1.1.0 PLATFORM=linux ARCH=amd64
-    curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
+    curl -Lo SopsSecretGenerator https://github.com/Meiqia/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
     chmod +x SopsSecretGenerator
     mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
     mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
