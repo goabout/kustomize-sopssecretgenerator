@@ -19,22 +19,25 @@ move it to `$XDG_CONFIG_HOME/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopss
 
 For example, to install version 1.2.0 on Linux:
 
-    VERSION=1.2.0 PLATFORM=linux ARCH=amd64
-    curl -Lo SopsSecretGenerator https://github.com/Meiqia/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
-    chmod +x SopsSecretGenerator
-    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
-    mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
-
+```bash
+VERSION=1.2.0 PLATFORM=linux ARCH=amd64
+curl -Lo SopsSecretGenerator https://github.com/Meiqia/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
+chmod +x SopsSecretGenerator
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
+mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/kustomize.meiqia.com/v1beta1/sopssecretgenerator"
+```
 
 ## Usage
 
 Create some encrypted values using `sops`:
 
-    echo FOO=secret >secret-vars.env
-    sops -e -i secret-vars.env
-    
-    echo secret >secret-file.txt
-    sops -e -i secret-file.txt
+```bash
+echo FOO=secret >secret-vars.env
+sops -e -i secret-vars.env
+
+echo secret >secret-file.txt
+sops -e -i secret-file.txt
+```
 
 Add a generator to your kustomization:
 
@@ -60,35 +63,39 @@ Run `kustomize build` with the `--enable_alpha_plugins` flag:
     
 The output is a Kubernetes secret containing the decrypted data:
 
-    apiVersion: v1
-    data:
-      FOO: c2VjcmV0
-      secret-file.txt: c2VjcmV0Cg==
-    kind: Secret
-    metadata:
-      name: my-secret-g8m5mh84c2
+
+```yaml
+apiVersion: v1
+data:
+  FOO: c2VjcmV0
+  secret-file.txt: c2VjcmV0Cg==
+kind: Secret
+metadata:
+  name: my-secret-g8m5mh84c2
+```
 
 An example showing all options:
 
-    apiVersion: kustomize.meiqia.com/v1beta1
-    kind: SopsSecretGenerator
-    metadata:
-      name: my-secret
-      labels:
-        app: my-app
-      annotations:
-        create-by: me
-    behavior: create
-    disableNameSuffixHash: true
-    envs:
-      - secret-vars.env
-      - secret-vars.yaml
-      - secret-vars.json
-    files:
-      - secret-file1.txt
-      - secret-file2.txt=secret-file2.sops.txt
-    type: Oblique
-
+```yaml
+apiVersion: kustomize.meiqia.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  name: my-secret
+  labels:
+    app: my-app
+  annotations:
+    create-by: me
+behavior: create
+disableNameSuffixHash: true
+envs:
+  - secret-vars.env
+  - secret-vars.yaml
+  - secret-vars.json
+files:
+  - secret-file1.txt
+  - secret-file2.txt=secret-file2.sops.txt
+type: Oblique
+```
 
 ## Development
 

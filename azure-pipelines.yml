@@ -1,0 +1,36 @@
+strategy:
+  matrix:
+    go112_linux:
+      imageName: 'ubuntu-16.04'
+      goVerson: '1.12'
+    go112_mac:
+      imageName: 'macos-10.13'
+      goVerson: '1.12'
+    go113_linux:
+      imageName: 'ubuntu-16.04'
+      goVerson: '1.13'
+    go113_mac:
+      imageName: 'ubuntu-16.04'
+      goVerson: '1.13'
+
+pool:
+  vmImage: $(imageName)
+
+variables:
+  GOBIN:  '$(GOPATH)/bin' # Go binaries path
+  GOROOT: '/usr/local/go$(goVerson)' # Go installation path
+  GOPATH: '$(system.defaultWorkingDirectory)/gopath' # Go workspace path
+
+steps:
+  - script: |
+      mkdir -p '$(GOBIN)'
+      mkdir -p '$(GOPATH)/pkg'
+      shopt -s extglob
+      shopt -s dotglob
+      echo '##vso[task.prependpath]$(GOBIN)'
+      echo '##vso[task.prependpath]$(GOROOT)/bin'
+    displayName: 'Set up the Go workspace'
+
+  - script: |
+      make test-coverage
+    displayName: 'Run tests'
