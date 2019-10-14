@@ -18,6 +18,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/pkg/errors"
+	"go.mozilla.org/sops"
 	sopscommon "go.mozilla.org/sops/cmd/sops/common"
 	sopsdecrypt "go.mozilla.org/sops/decrypt"
 	"gopkg.in/yaml.v2"
@@ -72,7 +73,11 @@ func main() {
 
 	output, err := processSopsSecretGenerator(os.Args[1])
 	if err != nil {
-		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
+			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
+		} else {
+			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		}
 		os.Exit(2)
 	}
 	fmt.Print(output)
