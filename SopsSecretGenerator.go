@@ -302,20 +302,22 @@ func parseFileSource(source string, data kvMap) error {
 	return nil
 }
 
-func parseFileName(source string) (string, string, error) {
-	sepNum := strings.Count(source, "=")
-	switch {
-	case sepNum == 0:
+func parseFileName(source string) (key string, fn string, err error) {
+	components := strings.Split(source, "=")
+
+	switch len(components) {
+	case 1:
 		return path.Base(source), source, nil
-	case sepNum == 1 && strings.HasPrefix(source, "="):
-		return "", "", fmt.Errorf("key name for file path %v missing", strings.TrimPrefix(source, "="))
-	case sepNum == 1 && strings.HasSuffix(source, "="):
-		return "", "", fmt.Errorf("file path for key name %v missing", strings.TrimSuffix(source, "="))
-	case sepNum > 1:
-		return "", "", errors.New("key names or file paths cannot contain '='")
+	case 2:
+		key, fn = components[0], components[1]
+		if key == "" {
+			return "", "", fmt.Errorf("key name for file path %v missing", fn)
+		} else if fn == "" {
+			return "", "", fmt.Errorf("file path for key name %v missing", key)
+		}
+		return key, fn, nil
 	default:
-		components := strings.Split(source, "=")
-		return components[0], components[1], nil
+		return "", "", errors.New("key names or file paths cannot contain '='")
 	}
 }
 
