@@ -1,4 +1,4 @@
-// Copyright 2019 Go About B.V.
+// Copyright 2019 Go About B.V. and contributors
 // Licensed under the Apache License, Version 2.0.
 
 package main
