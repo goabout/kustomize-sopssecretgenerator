@@ -6,7 +6,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/goabout/kustomize-sopssecretgenerator?sort=semver)](https://github.com/goabout/kustomize-sopssecretgenerator/releases/latest)
 [![License](https://img.shields.io/github/license/goabout/kustomize-sopssecretgenerator)](https://github.com/goabout/kustomize-sopssecretgenerator/blob/master/LICENSE)
 
-An generator plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
+A generator plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
 that generates Secrets from files encrypted with [sops](https://github.com/mozilla/sops).
 
 
@@ -104,7 +104,8 @@ Run all tests:
 In order to create encrypted test data, you need to import the secret key from `testdata/keyring.gpg` into
 your GPG keyring once:
 
-    gpg --import testdata/keyring.gpg
+    cd testdata
+    gpg --import keyring.gpg
     
 You can then use [sops](https://github.com/mozilla/sops) to create encrypted files:
 
