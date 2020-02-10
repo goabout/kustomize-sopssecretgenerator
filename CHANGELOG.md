@@ -1,6 +1,6 @@
 # Changelog
 
-## Development
+## Version 1.2.1
 
 * Fix sops dependency.
 * Use [goreleaser](https://goreleaser.com) for releases.

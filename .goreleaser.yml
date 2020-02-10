@@ -2,10 +2,9 @@ project_name: kustomize-sopssecretgenerator
 
 env:
   - GO111MODULE=on
-  - CGO_ENABLED=0
 
 env_files:
-  github_token: .githuub_token
+  github_token: .github_token
 
 before:
   hooks:
@@ -13,9 +12,25 @@ before:
 
 builds:
   - binary: SopsSecretGenerator
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - amd64
 
 archives:
   - format: binary
+
+changelog:
+  filters:
+    exclude:
+      - '^Release version'
+
+checksum:
+  name_template: "checksums.txt"
 
 release:
   github:
