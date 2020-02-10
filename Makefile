@@ -21,4 +21,4 @@ publish-release:
 
 .PHONY: clean
 clean:
-	-rm -rf $(BINARY) $(RELEASE_DIR)
+	-rm -rf SopsSecretGenerator dist
