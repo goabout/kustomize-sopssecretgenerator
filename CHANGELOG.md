@@ -1,5 +1,9 @@
 # Changelog
 
+## Development
+
+* Fix sops dependency.
+
 ## Version 1.2.0
 
 * Improved error handling. ([Timon Wong](https://github.com/timonwong))

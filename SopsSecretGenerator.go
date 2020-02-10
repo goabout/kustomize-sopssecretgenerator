@@ -1,4 +1,4 @@
-// Copyright 2019 Go About B.V. and contributors
+// Copyright 2019-2020 Go About B.V. and contributors
 // Parts adapted from kustomize, Copyright 2019 The Kubernetes Authors.
 // Licensed under the Apache License, Version 2.0.
 
@@ -18,9 +18,9 @@ import (
 	"unicode/utf8"
 
 	"github.com/pkg/errors"
-	"go.mozilla.org/sops"
-	sopscommon "go.mozilla.org/sops/cmd/sops/common"
-	sopsdecrypt "go.mozilla.org/sops/decrypt"
+	"go.mozilla.org/sops/v3"
+	"go.mozilla.org/sops/v3/cmd/sops/formats"
+	"go.mozilla.org/sops/v3/decrypt"
 	"gopkg.in/yaml.v2"
 )
 
@@ -193,7 +193,7 @@ func parseEnvSource(source string, data kvMap) error {
 	}
 
 	format := formatForPath(source)
-	decrypted, err := sopsdecrypt.Data(content, format)
+	decrypted, err := decrypt.Data(content, format)
 	if err != nil {
 		return err
 	}
@@ -298,7 +298,7 @@ func parseFileSource(source string, data kvMap) error {
 		return err
 	}
 
-	decrypted, err := sopsdecrypt.Data(content, formatForPath(source))
+	decrypted, err := decrypt.Data(content, formatForPath(source))
 	if err != nil {
 		return err
 	}
@@ -327,11 +327,11 @@ func parseFileName(source string) (key string, fn string, err error) {
 }
 
 func formatForPath(path string) string {
-	if sopscommon.IsYAMLFile(path) {
+	if formats.IsYAMLFile(path) {
 		return "yaml"
-	} else if sopscommon.IsJSONFile(path) {
+	} else if formats.IsJSONFile(path) {
 		return "json"
-	} else if sopscommon.IsEnvFile(path) {
+	} else if formats.IsEnvFile(path) {
 		return "dotenv"
 	}
 	return "binary"

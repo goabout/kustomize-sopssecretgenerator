@@ -1,4 +1,4 @@
-// Copyright 2019 Go About B.V. and contributors
+// Copyright 2019-2020 Go About B.V. and contributors
 // Licensed under the Apache License, Version 2.0.
 
 package main
@@ -13,7 +13,7 @@ import (
 
 	"github.com/lithammer/dedent"
 	"github.com/pkg/errors"
-	"go.mozilla.org/sops/pgp"
+	"go.mozilla.org/sops/v3/pgp"
 )
 
 const testkeyFingerprint = "2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4"
