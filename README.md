@@ -123,6 +123,8 @@ The resulting executable will be named `SopsSecretGenerator`.
 
 ### Release
 
+This project uses [goreleaser](https://goreleaser.com) to publish releases on GitHub.
+
 First create a Git tag for the release:
 
     git tag -a v$VERSION
@@ -130,5 +132,11 @@ First create a Git tag for the release:
 Then make releases for all supported platforms:
 
     make release
+
+Binaries can be found in `dist`.
+
+If everything looks good, set a GitHub personal token in the `GITHUB_TOKEN` environment variable
+(or a file named `.github_token`) and publish the release to GitHub:
     
-Binaries can be found in `releases`.
+    export GITHUB_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    make publish-release

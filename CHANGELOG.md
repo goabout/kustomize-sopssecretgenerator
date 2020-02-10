@@ -3,6 +3,7 @@
 ## Development
 
 * Fix sops dependency.
+* Use [goreleaser](https://goreleaser.com) for releases.
 
 ## Version 1.2.0
 

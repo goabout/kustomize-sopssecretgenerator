@@ -1,3 +1,4 @@
 SopsSecretGenerator
-release/
+dist/
 coverage.txt
+.github_token
