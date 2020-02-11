@@ -89,6 +89,9 @@ An example showing all options:
       - secret-file2.txt=secret-file2.sops.txt
     type: Oblique
 
+## Using SopsSecretsGenerator with ArgoCD
+
+SopsSecretGenerator can be added to ArogCD by [patching](./docs/argocd.md) an initContainer into the argoCD provided install.yaml
 
 ## Development
 
