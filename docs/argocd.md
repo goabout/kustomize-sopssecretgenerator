@@ -1,5 +1,5 @@
 
-Use a kustomize [patchesStregicMerge](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/glossary.md#patchstrategicmerge) to apply the following patches to patch the argo install.yaml
+Use a kustomize [patchStrategicMerge](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/glossary.md#patchstrategicmerge) to apply the following patches to patch the ArgoCD `install.yaml`.
 
 ### sopsSecretsGenerator.yaml
 

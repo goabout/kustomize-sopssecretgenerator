@@ -1,5 +1,10 @@
 # Changelog
 
+## Development
+
+* Document integration with [ArgoCD](https://github.com/argoproj/argo-cd). ([Leland Sindt](https://github.com/LelandSindt))
+* Link to alternative plugins.
+
 ## Version 1.2.1
 
 * Fix sops dependency.

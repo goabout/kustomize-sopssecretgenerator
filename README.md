@@ -6,8 +6,27 @@
 [![Latest Release](https://img.shields.io/github/v/release/goabout/kustomize-sopssecretgenerator?sort=semver)](https://github.com/goabout/kustomize-sopssecretgenerator/releases/latest)
 [![License](https://img.shields.io/github/license/goabout/kustomize-sopssecretgenerator)](https://github.com/goabout/kustomize-sopssecretgenerator/blob/master/LICENSE)
 
-A generator plugin for [kustomize](https://github.com/kubernetes-sigs/kustomize)
-that generates Secrets from files encrypted with [sops](https://github.com/mozilla/sops).
+SecretGenerator ❤ sops
+
+
+## Why use this?
+
+[Kustomize](https://github.com/kubernetes-sigs/kustomize) is a great tool to implement a [GitOps](https://www.weave.works/blog/gitops-operations-by-pull-request) workflow with. When a Git repository is the single source of truth it often contains sensitive data that needs to be encrypted at rest. Mozilla's [sops](https://github.com/mozilla/sops) is a simple and flexible tool for managing secrets that is very suitable for that task.
+
+This Kustomize plugin allows you to transparently create Secrets from sops-encrypted files during resource generation. It is explicitly modeled after the builtin [SecretGenerator](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/builtins.md#secretgenerator) plugin. Because it is an exec plugin, it is not tied to the specific compilation of Kustomize, [like Go plugins are](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginCaveats.md).
+
+### Alternatives
+
+There are a number of other plugins that can serve the same function:
+
+* [KOPS](https://github.com/Agilicus/kustomize-sops)
+* [Agilicus/kustomize-sops](https://github.com/Agilicus/kustomize-sops)
+* [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
+* [sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
+
+Most of these projects are in constant development. I invite you to pick the project that best fits your goals.
+
+Credit goes to [Seth Pollack](https://github.com/sethpollack) for the [Kustomize Secret Generator Plugins KEP](https://github.com/kubernetes/enhancements/blob/master/keps/sig-cli/kustomize-secret-generator-plugins.md) and subsequent implementation that made this possible.
 
 
 ## Installation
@@ -15,7 +34,7 @@ that generates Secrets from files encrypted with [sops](https://github.com/mozil
 Download the `SopsSecretGenerator` binary for your platform from the
 [GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
-`$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X and `%LOCALAPPDATA%` on Windows.)
+`$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X, and `%LOCALAPPDATA%` on Windows.)
 
 For example, to install version 1.2.1 on Linux:
 
@@ -68,6 +87,8 @@ The output is a Kubernetes secret containing the decrypted data:
     metadata:
       name: my-secret-g8m5mh84c2
 
+Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/fields.md#generatoroptions) fields. Data key-values ("envs") can be read from dotenv, YAML and JSON files. If the data is a file and the Secret data key is different from the filename, you can use `key=file`.
+
 An example showing all options:
 
     apiVersion: goabout.com/v1beta1
@@ -91,7 +112,7 @@ An example showing all options:
 
 ## Using SopsSecretsGenerator with ArgoCD
 
-SopsSecretGenerator can be added to ArogCD by [patching](./docs/argocd.md) an initContainer into the argoCD provided install.yaml
+SopsSecretGenerator can be added to ArgoCD by [patching](./docs/argocd.md) an initContainer into the ArgoCD provided `install.yaml`.
 
 ## Development
 
