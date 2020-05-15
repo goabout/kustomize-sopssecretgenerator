@@ -19,7 +19,7 @@ This Kustomize plugin allows you to transparently create Secrets from sops-encry
 
 There are a number of other plugins that can serve the same function:
 
-* [KOPS](https://github.com/Agilicus/kustomize-sops)
+* [KSOPS](https://github.com/viaduct-ai/kustomize-sops)
 * [Agilicus/kustomize-sops](https://github.com/Agilicus/kustomize-sops)
 * [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
 * [sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
