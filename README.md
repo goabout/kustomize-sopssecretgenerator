@@ -131,7 +131,7 @@ your GPG keyring once:
     cd testdata
     gpg --import keyring.gpg
     
-You can then use [sops](https://github.com/mozilla/sops) to create encrypted files:
+You can then use `sops` to create encrypted files:
 
     sops -e -i newfile.txt
 
