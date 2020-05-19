@@ -1,7 +1,8 @@
 # Changelog
 
-## Development
+## Version 1.2.2
 
+* Improve messages for sops errors.
 * Document integration with [ArgoCD](https://github.com/argoproj/argo-cd). ([Leland Sindt](https://github.com/LelandSindt))
 * Link to alternative plugins.
 
