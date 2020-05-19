@@ -85,7 +85,7 @@ The output is a Kubernetes secret containing the decrypted data:
       secret-file.txt: c2VjcmV0Cg==
     kind: Secret
     metadata:
-      name: my-secret-g8m5mh84c2
+      name: my-secret-hkkmtf8hkh
 
 Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/fields.md#generatoroptions) fields. Data key-values ("envs") can be read from dotenv, YAML and JSON files. If the data is a file and the Secret data key is different from the filename, you can use `key=file`.
 
