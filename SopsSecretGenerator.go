@@ -180,7 +180,7 @@ func parseEnvSources(sources []string, data kvMap) error {
 	for _, source := range sources {
 		err := parseEnvSource(source, data)
 		if err != nil {
-			return errors.Wrapf(err, "env source %v", source)
+			return errors.Wrapf(err, "env source \"%s\"", source)
 		}
 	}
 	return nil
@@ -189,13 +189,13 @@ func parseEnvSources(sources []string, data kvMap) error {
 func parseEnvSource(source string, data kvMap) error {
 	content, err := ioutil.ReadFile(source)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not read file")
 	}
 
 	format := formatForPath(source)
 	decrypted, err := decrypt.Data(content, format)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sops could not decrypt")
 	}
 
 	switch format {
@@ -281,7 +281,7 @@ func parseFileSources(sources []string, data kvMap) error {
 	for _, source := range sources {
 		err := parseFileSource(source, data)
 		if err != nil {
-			return errors.Wrapf(err, "file source %v", source)
+			return errors.Wrapf(err, "file source \"%s\"", source)
 		}
 	}
 	return nil
@@ -295,12 +295,12 @@ func parseFileSource(source string, data kvMap) error {
 
 	content, err := ioutil.ReadFile(fn)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "could not read file")
 	}
 
 	decrypted, err := decrypt.Data(content, formatForPath(source))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "sops could not decrypt")
 	}
 
 	data[key] = base64.StdEncoding.EncodeToString(decrypted)
@@ -316,9 +316,9 @@ func parseFileName(source string) (key string, fn string, err error) {
 	case 2:
 		key, fn = components[0], components[1]
 		if key == "" {
-			return "", "", fmt.Errorf("key name for file path %v missing", fn)
+			return "", "", fmt.Errorf("key name for file path \"%s\" missing", fn)
 		} else if fn == "" {
-			return "", "", fmt.Errorf("file path for key name %v missing", key)
+			return "", "", fmt.Errorf("file path for key name \"%s\" missing", key)
 		}
 		return key, fn, nil
 	default:
