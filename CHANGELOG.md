@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.3.0
+
+* Support sops-encrypted INI files.
+
 ## Version 1.2.2
 
 * Improve messages for sops errors.

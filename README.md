@@ -36,9 +36,9 @@ Download the `SopsSecretGenerator` binary for your platform from the
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X, and `%LOCALAPPDATA%` on Windows.)
 
-For example, to install version 1.2.2 on Linux:
+For example, to install version 1.3.0 on Linux:
 
-    VERSION=1.2.2 PLATFORM=linux ARCH=amd64
+    VERSION=1.3.0 PLATFORM=linux ARCH=amd64
     curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
     chmod +x SopsSecretGenerator
     mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
