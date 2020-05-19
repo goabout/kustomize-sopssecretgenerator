@@ -465,7 +465,12 @@ func Test_parseFileSource(t *testing.T) {
 		want    kvMap
 		wantErr bool
 	}{
-		{"File", args{"testdata/file.txt"}, kvMap{"file.txt": b64("secret\n")}, false},
+		{"Yaml", args{"testdata/file.yaml"}, kvMap{"file.yaml": b64("var: secret\n")}, false},
+		{"Json", args{"testdata/file.json"}, kvMap{"file.json": b64("{\n\t\"var\": \"secret\"\n}")}, false},
+		{"Env", args{"testdata/file.env"}, kvMap{"file.env": b64("VAR=secret\n")}, false},
+		{"Ini", args{"testdata/file.ini"}, kvMap{"file.ini": b64("[section]\nvar = secret\n\n")}, false},
+		{"Binary", args{"testdata/file.txt"}, kvMap{"file.txt": b64("secret\n")}, false},
+		{"BinaryRenamed", args{"renamed.txt=testdata/file.txt"}, kvMap{"renamed.txt": b64("secret\n")}, false},
 		{"MissingFile", args{"testdata/missing.txt"}, kvMap{}, true},
 		{"InvalidName", args{"=testdata/file.txt"}, kvMap{}, true},
 		{"NotSopsFile", args{"testdata/empty.txt"}, kvMap{}, true},
@@ -515,30 +520,6 @@ func Test_parseFileName(t *testing.T) {
 			}
 			if got1 != tt.wantFile {
 				t.Errorf("parseFileName() got1 = %v, wantFile %v", got1, tt.wantFile)
-			}
-		})
-	}
-}
-
-func Test_formatForPath(t *testing.T) {
-	type args struct {
-		path string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{"YAMLLong", args{"dir/file.yaml"}, "yaml"},
-		{"YAMLShort", args{"dir/file.yml"}, "yaml"},
-		{"JSON", args{"dir/file.json"}, "json"},
-		{"DotEnv", args{"dir/file.env"}, "dotenv"},
-		{"Other", args{"dir/file.txt"}, "binary"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := formatForPath(tt.args.path); got != tt.want {
-				t.Errorf("formatForPath() = %v, want %v", got, tt.want)
 			}
 		})
 	}

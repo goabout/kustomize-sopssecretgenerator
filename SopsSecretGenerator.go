@@ -192,18 +192,18 @@ func parseEnvSource(source string, data kvMap) error {
 		return errors.Wrap(err, "could not read file")
 	}
 
-	format := formatForPath(source)
-	decrypted, err := decrypt.Data(content, format)
+	format := formats.FormatForPath(source)
+	decrypted, err := decrypt.DataWithFormat(content, format)
 	if err != nil {
 		return errors.Wrap(err, "sops could not decrypt")
 	}
 
 	switch format {
-	case "dotenv":
+	case formats.Dotenv:
 		err = parseDotEnvContent(decrypted, data)
-	case "yaml":
+	case formats.Yaml:
 		err = parseYAMLContent(decrypted, data)
-	case "json":
+	case formats.Json:
 		err = parseJSONContent(decrypted, data)
 	default:
 		err = errors.New("unknown file format, use dotenv, yaml or json")
@@ -298,7 +298,7 @@ func parseFileSource(source string, data kvMap) error {
 		return errors.Wrap(err, "could not read file")
 	}
 
-	decrypted, err := decrypt.Data(content, formatForPath(source))
+	decrypted, err := decrypt.DataWithFormat(content, formats.FormatForPath(source))
 	if err != nil {
 		return errors.Wrap(err, "sops could not decrypt")
 	}
@@ -324,15 +324,4 @@ func parseFileName(source string) (key string, fn string, err error) {
 	default:
 		return "", "", errors.New("key names or file paths cannot contain '='")
 	}
-}
-
-func formatForPath(path string) string {
-	if formats.IsYAMLFile(path) {
-		return "yaml"
-	} else if formats.IsJSONFile(path) {
-		return "json"
-	} else if formats.IsEnvFile(path) {
-		return "dotenv"
-	}
-	return "binary"
 }
