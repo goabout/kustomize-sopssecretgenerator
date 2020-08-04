@@ -1,9 +1,8 @@
 # Changelog
 
-## Development
+## Version 1.3.1
 
 * Support files encrypted using sops 3.6.0.
-* Drop support for Go version 1.12.
 
 ## Version 1.3.0
 
