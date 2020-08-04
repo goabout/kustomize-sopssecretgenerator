@@ -81,7 +81,7 @@ The output is a Kubernetes secret containing the decrypted data:
 
     apiVersion: v1
     data:
-      FOO: c2VjcmV0
+      FOO: J3NlY3JldCc=
       secret-file.txt: c2VjcmV0Cg==
     kind: Secret
     metadata:
