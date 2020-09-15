@@ -144,7 +144,7 @@ func Test_generateSecret(t *testing.T) {
 						"kustomize.config.k8s.io/behavior":   "merge",
 					},
 				},
-				Data: kvMap{"VAR_ENV": b64("'val_env'"), "file.txt": b64("secret\n")},
+				Data: kvMap{"VAR_ENV": b64("val_env"), "file.txt": b64("secret\n")},
 				Type: "Oblique",
 			},
 			false,
@@ -225,7 +225,7 @@ func Test_parseInput(t *testing.T) {
 		want    kvMap
 		wantErr bool
 	}{
-		{"Input", args{ssg([]string{"testdata/vars.env"}, []string{"testdata/file.txt"})}, kvMap{"VAR_ENV": b64("'val_env'"), "file.txt": b64("secret\n")}, false},
+		{"Input", args{ssg([]string{"testdata/vars.env"}, []string{"testdata/file.txt"})}, kvMap{"VAR_ENV": b64("val_env"), "file.txt": b64("secret\n")}, false},
 		{"EnvsError", args{ssg([]string{"testdata/file.txt"}, []string{"testdata/file.txt"})}, nil, true},
 		{"FilesError", args{ssg([]string{"testdata/vars.env"}, []string{"testdata/missing.txt"})}, nil, true},
 	}
@@ -253,7 +253,7 @@ func Test_parseEnvSources(t *testing.T) {
 		want    kvMap
 		wantErr bool
 	}{
-		{"Envs", args{[]string{"testdata/vars.env", "testdata/vars.yaml"}}, kvMap{"VAR_ENV": b64("'val_env'"), "VAR_YAML": b64("val_yaml")}, false},
+		{"Envs", args{[]string{"testdata/vars.env", "testdata/vars.yaml"}}, kvMap{"VAR_ENV": b64("val_env"), "VAR_YAML": b64("val_yaml")}, false},
 		{"NoEnvs", args{[]string{}}, kvMap{}, false},
 		{"Error", args{[]string{"testdata/missing.env"}}, kvMap{}, true},
 	}
@@ -282,7 +282,7 @@ func Test_parseEnvSource(t *testing.T) {
 		want    kvMap
 		wantErr bool
 	}{
-		{"DotEnv", args{"testdata/vars.env"}, kvMap{"VAR_ENV": b64("'val_env'")}, false},
+		{"DotEnv", args{"testdata/vars.env"}, kvMap{"VAR_ENV": b64("val_env")}, false},
 		{"YAML", args{"testdata/vars.yaml"}, kvMap{"VAR_YAML": b64("val_yaml")}, false},
 		{"JSON", args{"testdata/vars.json"}, kvMap{"VAR_JSON": b64("val_json")}, false},
 		{"Binary", args{"testdata/file.txt"}, kvMap{}, true},
@@ -467,8 +467,7 @@ func Test_parseFileSource(t *testing.T) {
 	}{
 		{"Yaml", args{"testdata/file.yaml"}, kvMap{"file.yaml": b64("var: secret\n")}, false},
 		{"Json", args{"testdata/file.json"}, kvMap{"file.json": b64("{\n\t\"var\": \"secret\"\n}")}, false},
-		{"Env-3.5", args{"testdata/file-3.5.env"}, kvMap{"file-3.5.env": b64("VAR='secret'\n")}, false},
-		{"Env-3.6", args{"testdata/file-3.6.env"}, kvMap{"file-3.6.env": b64("VAR='secret'\n")}, false},
+		{"Env", args{"testdata/file.env"}, kvMap{"file.env": b64("VAR=secret\n")}, false},
 		{"Ini", args{"testdata/file.ini"}, kvMap{"file.ini": b64("[section]\nvar = secret\n\n")}, false},
 		{"Binary", args{"testdata/file.txt"}, kvMap{"file.txt": b64("secret\n")}, false},
 		{"BinaryRenamed", args{"renamed.txt=testdata/file.txt"}, kvMap{"renamed.txt": b64("secret\n")}, false},
