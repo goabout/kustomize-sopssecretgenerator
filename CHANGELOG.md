@@ -1,5 +1,10 @@
 # Changelog
 
+## Version 1.3.2
+
+* Support files encrypted using sops versions 3.6.1 and 3.5. No longer supports
+  sops 3.6.0, which is backward (and now forward) incompatible.
+
 ## Version 1.3.1
 
 * Support files encrypted using sops 3.6.0.
