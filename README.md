@@ -11,19 +11,20 @@ SecretGenerator ❤ sops
 
 ## Why use this?
 
-[Kustomize](https://github.com/kubernetes-sigs/kustomize) is a great tool for implementing a [GitOps](https://www.weave.works/blog/gitops-operations-by-pull-request) workflow. When a repository describes the entire system state, it often contains secrets that needs to be encrypted at rest. Mozilla's [sops](https://github.com/mozilla/sops) is a simple and flexible tool that is very suitable for that task.
+[Kustomize](https://github.com/kubernetes-sigs/kustomize) is a great tool for implementing a [GitOps](https://www.weave.works/blog/gitops-operations-by-pull-request) workflow. When a repository describes the entire system state, it often contains secrets that need to be encrypted at rest. Mozilla's [sops](https://github.com/mozilla/sops) is a simple and flexible tool that is very suitable for that task.
 
-This Kustomize plugin allows you to transparently create Secrets from sops-encrypted files during resource generation. It is explicitly modeled after the builtin [SecretGenerator](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/builtins.md#secretgenerator) plugin. Because it is an exec plugin, it is not tied to the specific compilation of Kustomize, [like Go plugins are](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginCaveats.md).
+This Kustomize plugin allows you to create Secrets transparently from sops-encrypted files during resource generation. It is explicitly modeled after the builtin [SecretGenerator](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/builtins.md#secretgenerator) plugin. Because it is an exec plugin, it is not tied to the specific compilation of Kustomize, [like Go plugins are](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginCaveats.md).
 
 
 ### Alternatives
 
 There are a number of other plugins that can serve the same function:
 
-* [KSOPS](https://github.com/viaduct-ai/kustomize-sops)
+* [viaduct-ai/kustomize-sops](https://github.com/viaduct-ai/kustomize-sops)
 * [Agilicus/kustomize-sops](https://github.com/Agilicus/kustomize-sops)
 * [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
-* [sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
+* [monopole/sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
+* [omninonsense/kustomize-sopsgenerator](https://github.com/omninonsense/kustomize-sopsgenerator)
 
 Most of these projects are in constant development. I invite you to check them out and pick the project that best fits your goals.
 
@@ -86,9 +87,9 @@ The output is a Kubernetes secret containing the decrypted data:
       secret-file.txt: c2VjcmV0Cg==
     kind: Secret
     metadata:
-      name: my-secret-hkkmtf8hkh
+      name: my-secret-6d2fchb89d
 
-Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/fields.md#generatoroptions) fields. Data key-values ("envs") can be read from dotenv, YAML and JSON files. If the data is a file and the Secret data key needs to be different from the filename, you can use `key=file`.
+Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://kubernetes-sigs.github.io/kustomize/api-reference/kustomization/generatoroptions/) fields. Data key-values ("envs") can be read from dotenv, YAML and JSON files. If the data is a file and the Secret data key needs to be different from the filename, you can use `key=file`.
 
 An example showing all options:
 
