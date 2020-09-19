@@ -25,7 +25,14 @@ There are a number of other plugins that can serve the same function:
 * [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
 * [monopole/sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
 * [omninonsense/kustomize-sopsgenerator](https://github.com/omninonsense/kustomize-sopsgenerator)
+* [whatever-company/secretgen](https://github.com/whatever-company/secretgen)
+
+Additionally, there are other ways to use sops-encrypted secrets in Kubernetes:
+
 * [isindir/sops-secrets-operator](https://github.com/isindir/sops-secrets-operator)
+* [craftypath/sops-operator](https://github.com/craftypath/sops-operator)
+* [jkroepke/helm-secrets](https://github.com/jkroepke/helm-secrets)
+* [dschniepp/sealit](https://github.com/dschniepp/sealit)
 
 Most of these projects are in constant development. I invite you to check them out and pick the project that best fits your goals.
 
