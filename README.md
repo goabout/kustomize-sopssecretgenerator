@@ -25,6 +25,7 @@ There are a number of other plugins that can serve the same function:
 * [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
 * [monopole/sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
 * [omninonsense/kustomize-sopsgenerator](https://github.com/omninonsense/kustomize-sopsgenerator)
+* [isindir/sops-secrets-operator](https://github.com/isindir/sops-secrets-operator)
 
 Most of these projects are in constant development. I invite you to check them out and pick the project that best fits your goals.
 
