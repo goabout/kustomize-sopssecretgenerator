@@ -48,6 +48,8 @@ For example, to install version 1.3.2 on Linux:
     mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
     mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
 
+You do not need to install the `sops` binary for the plugin to work. The plugin includes and calls sops internally.
+
 
 ## Usage
 
