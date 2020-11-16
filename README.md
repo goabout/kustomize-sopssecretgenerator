@@ -41,8 +41,6 @@ Credit goes to [Seth Pollack](https://github.com/sethpollack) for the [Kustomize
 
 ## Installation
 
-**Note:** Exec plugins do not seem to work on Windows at the moment. See issues [goabout/kustomize-sopssecretgenerator#14](https://github.com/goabout/kustomize-sopssecretgenerator/issues/14) and [kubernetes-sigs/kustomize#2924](https://github.com/kubernetes-sigs/kustomize/issues/2924).
-
 Download the `SopsSecretGenerator` binary for your platform from the
 [GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
