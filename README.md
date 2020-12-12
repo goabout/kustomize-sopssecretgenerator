@@ -99,7 +99,7 @@ The output is a Kubernetes secret containing the decrypted data:
     metadata:
       name: my-secret-6d2fchb89d
 
-Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://kubernetes-sigs.github.io/kustomize/api-reference/kustomization/generatoroptions/) fields. Data key-values ("envs") can be read from dotenv, YAML and JSON files. If the data is a file and the Secret data key needs to be different from the filename, you can specify the key by adding `desiredKey=file` instead of just the filename.
+Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://kubernetes-sigs.github.io/kustomize/api-reference/kustomization/generatoroptions/) fields. Additionally, labels and annotations are copied over to the Secret. Data key-values ("envs") can be read from dotenv, INI, YAML and JSON files. If the data is a file and the Secret data key needs to be different from the filename, you can specify the key by adding `desiredKey=filename` instead of just the filename.
 
 An example showing all options:
 
@@ -115,6 +115,7 @@ An example showing all options:
     disableNameSuffixHash: true
     envs:
       - secret-vars.env
+      - secret-vars.ini
       - secret-vars.yaml
       - secret-vars.json
     files:
