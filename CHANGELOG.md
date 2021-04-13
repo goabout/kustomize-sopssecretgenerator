@@ -1,5 +1,9 @@
 # Changelog
 
+## Development
+
+* Update sops dependency to 3.7.1 to support [age](https://age-encryption.org/)-encrypted secrets.
+
 ## Version 1.3.2
 
 * Support files encrypted using sops versions 3.6.1 and 3.5. No longer supports
