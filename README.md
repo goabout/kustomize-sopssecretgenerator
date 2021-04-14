@@ -15,27 +15,6 @@ SecretGenerator ❤ sops
 
 This Kustomize plugin allows you to create Secrets transparently from sops-encrypted files during resource generation. It is explicitly modeled after the builtin [SecretGenerator](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/builtins.md#secretgenerator) plugin. Because it is an exec plugin, it is not tied to the specific compilation of Kustomize, [like Go plugins are](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginCaveats.md).
 
-
-### Alternatives
-
-There are a number of other plugins that can serve the same function:
-
-* [viaduct-ai/kustomize-sops](https://github.com/viaduct-ai/kustomize-sops)
-* [Agilicus/kustomize-sops](https://github.com/Agilicus/kustomize-sops)
-* [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
-* [monopole/sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
-* [omninonsense/kustomize-sopsgenerator](https://github.com/omninonsense/kustomize-sopsgenerator)
-* [whatever-company/secretgen](https://github.com/whatever-company/secretgen)
-
-Additionally, there are other ways to use sops-encrypted secrets in Kubernetes:
-
-* [isindir/sops-secrets-operator](https://github.com/isindir/sops-secrets-operator)
-* [craftypath/sops-operator](https://github.com/craftypath/sops-operator)
-* [jkroepke/helm-secrets](https://github.com/jkroepke/helm-secrets)
-* [dschniepp/sealit](https://github.com/dschniepp/sealit)
-
-Most of these projects are in constant development. I invite you to check them out and pick the project that best fits your goals.
-
 Credit goes to [Seth Pollack](https://github.com/sethpollack) for the [Kustomize Secret Generator Plugins KEP](https://github.com/kubernetes/enhancements/blob/master/keps/sig-cli/kustomize-secret-generator-plugins.md) and subsequent implementation that made this possible.
 
 
@@ -46,9 +25,9 @@ Download the `SopsSecretGenerator` binary for your platform from the
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X, and `%LOCALAPPDATA%` on Windows.)
 
-For example, to install version 1.3.2 on Linux:
+For example, to install version 1.4.0 on Linux:
 
-    VERSION=1.3.2 PLATFORM=linux ARCH=amd64
+    VERSION=1.4.0 PLATFORM=linux ARCH=amd64
     curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
     chmod +x SopsSecretGenerator
     mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
@@ -129,6 +108,27 @@ An example showing all options:
 SopsSecretGenerator can be added to ArgoCD by [patching](./docs/argocd.md) an initContainer into the ArgoCD provided `install.yaml`.
 
 
+## Alternatives
+
+There are a number of other plugins that can serve the same function:
+
+* [viaduct-ai/kustomize-sops](https://github.com/viaduct-ai/kustomize-sops)
+* [Agilicus/kustomize-sops](https://github.com/Agilicus/kustomize-sops)
+* [barlik/kustomize-sops](https://github.com/barlik/kustomize-sops)
+* [monopole/sopsencodedsecrets](https://github.com/monopole/sopsencodedsecrets)
+* [omninonsense/kustomize-sopsgenerator](https://github.com/omninonsense/kustomize-sopsgenerator)
+* [whatever-company/secretgen](https://github.com/whatever-company/secretgen)
+
+Additionally, there are other ways to use sops-encrypted secrets in Kubernetes:
+
+* [isindir/sops-secrets-operator](https://github.com/isindir/sops-secrets-operator)
+* [craftypath/sops-operator](https://github.com/craftypath/sops-operator)
+* [jkroepke/helm-secrets](https://github.com/jkroepke/helm-secrets)
+* [dschniepp/sealit](https://github.com/dschniepp/sealit)
+
+Most of these projects are in constant development. I invite you to check them out and pick the project that best fits your goals.
+
+
 ## Development
 
 You will need [Go](https://golang.org) 1.13 or higher to develop and build the plugin.
@@ -140,8 +140,7 @@ Run all tests:
 
     make test
 
-In order to create encrypted test data, you need to import the secret key from `testdata/keyring.gpg` into
-your GPG keyring once:
+In order to create encrypted test data, you need to import the secret key from `testdata/keyring.gpg` into your GPG keyring once:
 
     cd testdata
     gpg --import keyring.gpg
@@ -162,20 +161,17 @@ The resulting executable will be named `SopsSecretGenerator`.
 
 ### Release
 
-This project uses [goreleaser](https://goreleaser.com) to publish releases on GitHub.
+This project uses GitHub Actions and [goreleaser](https://goreleaser.com) to publish releases on GitHub.
 
-First create a Git tag for the release:
+First, don't forget to update the documentation for the new version you are going to release.
 
-    git tag -a v$VERSION
+Then create a Git tag for the release:
 
-Then make releases for all supported platforms:
+    VERSION=X.X.X
+    git tag -a v$VERSION -m "Version $VERSION"
 
-    make release
+And push it to GitHub:
 
-Binaries can be found in `dist`.
+    git push
 
-If everything looks good, set a GitHub personal token in the `GITHUB_TOKEN` environment variable
-(or a file named `.github_token`) and publish the release to GitHub:
-    
-    export GITHUB_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-    make publish-release
+The GitHub Actions workflow will build and release the binaries automatically.

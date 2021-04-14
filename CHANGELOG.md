@@ -1,6 +1,10 @@
 # Changelog
 
-## Development
+## Version 1.4.0
+
+* Build and release amd64 binaries.
+
+## Version 1.3.3
 
 * Update sops dependency to 3.7.1 to support [age](https://age-encryption.org/)-encrypted secrets.
 * Migrate CI to GitHub Actions.
