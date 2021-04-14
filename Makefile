@@ -13,11 +13,11 @@ test-coverage:
 
 .PHONY: release
 release:
-	goreleaser --rm-dist --skip-publish
+	goreleaser release --rm-dist --skip-publish
 
 .PHONY: publish-release
 publish-release:
-	goreleaser --rm-dist
+	goreleaser release --rm-dist
 
 .PHONY: clean
 clean:

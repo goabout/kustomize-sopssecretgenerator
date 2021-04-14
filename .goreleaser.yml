@@ -2,9 +2,13 @@ project_name: kustomize-sopssecretgenerator
 
 env:
   - GO111MODULE=on
+  - GOPROXY=https://proxy.golang.org
 
 env_files:
   github_token: .github_token
+
+gomod:
+  proxy: true
 
 before:
   hooks:
