@@ -3,6 +3,7 @@
 ## Development
 
 * Update sops dependency to 3.7.1 to support [age](https://age-encryption.org/)-encrypted secrets.
+* Migrate CI to GitHub Actions.
 
 ## Version 1.3.2
 
