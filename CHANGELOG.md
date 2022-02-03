@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.4.1
+
+* Update indirect dependencies and build with go 1.17
+
 ## Version 1.4.0
 
 * Build and release amd64 binaries.
