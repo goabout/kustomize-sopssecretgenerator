@@ -15,6 +15,8 @@ SecretGenerator ❤ sops
 
 This Kustomize plugin allows you to create Secrets transparently from sops-encrypted files during resource generation. It is explicitly modeled after the builtin [SecretGenerator](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/builtins.md#secretgenerator) plugin. Because it is an exec plugin, it is not tied to the specific compilation of Kustomize, [like Go plugins are](https://github.com/kubernetes-sigs/kustomize/blob/master/docs/plugins/goPluginCaveats.md).
 
+Since version 1.5.0, the plugin can be used as a [KRM Function](https://github.com/kubernetes-sigs/kustomize/blob/master/cmd/config/docs/api-conventions/functions-spec.md).
+
 Credit goes to [Seth Pollack](https://github.com/sethpollack) for the [Kustomize Secret Generator Plugins KEP](https://github.com/kubernetes/enhancements/blob/master/keps/sig-cli/kustomize-secret-generator-plugins.md) and subsequent implementation that made this possible.
 
 
@@ -25,9 +27,9 @@ Download the `SopsSecretGenerator` binary for your platform from the
 move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
 `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X, and `%LOCALAPPDATA%` on Windows.)
 
-For example, to install version 1.4.1 on Linux:
+For example, to install version 1.5.0 on Linux:
 
-    VERSION=1.4.1 PLATFORM=linux ARCH=amd64
+    VERSION=1.5.0 PLATFORM=linux ARCH=amd64
     curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
     chmod +x SopsSecretGenerator
     mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
@@ -37,6 +39,8 @@ You do not need to install the `sops` binary for the plugin to work. The plugin 
 
 
 ## Usage
+
+**Note:** This section documents legacy exec plugin usage. Usage as a KRM Function is also supported but not yet documented.
 
 Create some encrypted values using `sops`:
 
@@ -64,9 +68,9 @@ Add a generator to your kustomization:
       - secret-file.txt
     .
       
-Run `kustomize build` with the `--enable_alpha_plugins` flag:
+Run `kustomize build` with the `--enable-alpha-plugins` flag:
 
-    kustomize build --enable_alpha_plugins
+    kustomize build --enable-alpha-plugins
     
 The output is a Kubernetes secret containing the decrypted data:
 
