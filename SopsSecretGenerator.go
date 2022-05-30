@@ -17,6 +17,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/pkg/errors"
 	"go.mozilla.org/sops/v3"
 	"go.mozilla.org/sops/v3/cmd/sops/formats"
@@ -65,13 +66,82 @@ type Secret struct {
 	Type       string `json:"type,omitempty" yaml:"type,omitempty"`
 }
 
+func usage() {
+	usage := `
+		SopsSecretGenerator is a Kustomize generator plugin that generates Secrets from sops-encrypted files.
+		This plugin supports legacy Kustomize plugin style as well KRM Functions style.
+
+		Note:
+		  The usage examples here are for standalone execution. If the plugin is used via Kustomize,
+		  then Kustomize will handle passing data to the plugin.
+
+		Usage:
+		- Legacy: SopsSecretGenerator SopsSecretGenerator.yaml
+		- KRM: cat ResourceList.yaml | SopsSecretGenerator
+`
+
+	fmt.Fprintf(os.Stderr, "%s", strings.ReplaceAll(usage, "		", ""))
+	os.Exit(1)
+}
+
 func main() {
-	if len(os.Args) != 2 {
-		_, _ = fmt.Fprintln(os.Stderr, "usage: SopsSecretGenerator FILE")
-		os.Exit(1)
+	argsLen := len(os.Args)
+
+	// Kustomize KRM Function style.
+	if argsLen == 1 {
+		stdinStat, _ := os.Stdin.Stat()
+
+		// Check the StdIn content.
+		if (stdinStat.Mode() & os.ModeCharDevice) != 0 {
+			usage()
+		}
+
+		err := fn.AsMain(fn.ResourceListProcessorFunc(generateKRMManifest))
+		if err != nil {
+			fmt.Println(err)
+			usage()
+		}
+
+		// Kustomize legacy plugin style.
+	} else {
+		if argsLen != 2 {
+			usage()
+		}
+
+		sopsSecretGeneratorManifest, err := readFile(os.Args[1])
+		if err != nil {
+			fmt.Println(err)
+			usage()
+		}
+
+		secretManifest := generateSecretManifest(sopsSecretGeneratorManifest)
+		fmt.Print(secretManifest)
+	}
+}
+
+// generateKRMManifest reads ResourceList with SopsSecretGenerator items
+// and returns ResourceList with Secret items.
+func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
+	var generatedSecrets []*fn.KubeObject
+
+	for _, sopsSecretGeneratorManifest := range rl.Items {
+		secretManifest := generateSecretManifest([]byte(sopsSecretGeneratorManifest.String()))
+
+		secretKubeObject, err := fn.ParseKubeObject([]byte(secretManifest))
+		if err != nil {
+			return false, err
+		}
+
+		generatedSecrets = append(generatedSecrets, secretKubeObject)
 	}
 
-	output, err := processSopsSecretGenerator(os.Args[1])
+	rl.Items = generatedSecrets
+
+	return true, nil
+}
+
+func generateSecretManifest(manifestContent []byte) string {
+	output, err := processSopsSecretGenerator(manifestContent)
 	if err != nil {
 		if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
 			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
@@ -80,11 +150,11 @@ func main() {
 		}
 		os.Exit(2)
 	}
-	fmt.Print(output)
+	return output
 }
 
-func processSopsSecretGenerator(fn string) (string, error) {
-	input, err := readInput(fn)
+func processSopsSecretGenerator(manifestContent []byte) (string, error) {
+	input, err := readInput(manifestContent)
 	if err != nil {
 		return "", err
 	}
@@ -133,19 +203,24 @@ func generateSecret(sopsSecret SopsSecretGenerator) (Secret, error) {
 	return secret, nil
 }
 
-func readInput(fn string) (SopsSecretGenerator, error) {
-	content, err := ioutil.ReadFile(fn)
+func readFile(fileName string) ([]byte, error) {
+	content, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		return SopsSecretGenerator{}, err
+		return []byte{}, err
 	}
 
+	return content, nil
+}
+
+func readInput(manifestContent []byte) (SopsSecretGenerator, error) {
 	input := SopsSecretGenerator{
 		TypeMeta: TypeMeta{},
 		ObjectMeta: ObjectMeta{
 			Annotations: make(kvMap),
 		},
 	}
-	err = yaml.Unmarshal(content, &input)
+
+	err := yaml.Unmarshal(manifestContent, &input)
 	if err != nil {
 		return SopsSecretGenerator{}, err
 	}

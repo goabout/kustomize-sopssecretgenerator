@@ -6,11 +6,13 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"reflect"
 	"strings"
 	"testing"
 
+	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/lithammer/dedent"
 	"github.com/pkg/errors"
 	"go.mozilla.org/sops/v3/pgp"
@@ -59,6 +61,63 @@ func setupGnuPG() error {
 
 // Tests
 
+func Test_GenerateKRMManifest(t *testing.T) {
+	type args struct {
+		rlFile    string
+		itemIndex int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    string
+		wantErr bool
+	}{
+		{
+			"SecretFromEnv",
+			args{"testdata/krm-function-input.yaml", 0},
+			strings.TrimLeft(dedent.Dedent(`
+				apiVersion: v1
+				kind: Secret
+				metadata:
+				  name: secret-from-env
+				data:
+				  VAR_ENV: dmFsX2Vudg==
+			`), "\n"),
+			false,
+		},
+		{
+			"SecretFromFile",
+			args{"testdata/krm-function-input.yaml", 1},
+			strings.TrimLeft(dedent.Dedent(`
+				apiVersion: v1
+				kind: Secret
+				metadata:
+				  name: secret-from-file
+				data:
+				  file.txt: c2VjcmV0Cg==
+			`), "\n"),
+			false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Run(tt.name, func(t *testing.T) {
+				in, _ := ioutil.ReadFile(tt.args.rlFile)
+				out, err := fn.Run(fn.ResourceListProcessorFunc(generateKRMManifest), in)
+				if (err != nil) != tt.wantErr {
+					t.Errorf("generateKRMManifest() error = %v, wantErr %v", err, tt.wantErr)
+					return
+				}
+				rl, _ := fn.ParseResourceList(out)
+				got := fmt.Sprint(rl.Items[tt.args.itemIndex])
+				if !reflect.DeepEqual(got, tt.want) {
+					t.Errorf("generateKRMManifest() got = %v, want %v", got, tt.want)
+				}
+			})
+		})
+	}
+}
+
 func Test_ProcessSopsSecretGenerator(t *testing.T) {
 	type args struct {
 		fn string
@@ -83,11 +142,11 @@ func Test_ProcessSopsSecretGenerator(t *testing.T) {
 			false,
 		},
 		{"InvalidEnvs", args{"testdata/generator-invalidenv.yaml"}, "", true},
-		{"MissingFile", args{"testdata/missing.yaml"}, "", true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := processSopsSecretGenerator(tt.args.fn)
+			sopsSecretGeneratorManifest, _ := ioutil.ReadFile(tt.args.fn)
+			got, err := processSopsSecretGenerator(sopsSecretGeneratorManifest)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("processSopsSecretGenerator() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -183,6 +242,29 @@ func Test_generateSecret(t *testing.T) {
 	}
 }
 
+func Test_readFile(t *testing.T) {
+	type args struct {
+		fn string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"ExistingFile", args{"testdata/generator.yaml"}, false},
+		{"MissingFile", args{"testdata/missing.yaml"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := readFile(tt.args.fn)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readFile() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+		})
+	}
+}
+
 func Test_readInput(t *testing.T) {
 	type args struct {
 		fn string
@@ -195,7 +277,6 @@ func Test_readInput(t *testing.T) {
 	}{
 		{"SopsSecretGenerator", args{"testdata/generator.yaml"}, ssg(nil, []string{"testdata/file.txt"}), false},
 		{"SopsSecret", args{"testdata/generator-oldkind.yaml"}, ssg(nil, []string{"testdata/file.txt"}), false},
-		{"Missing", args{"testdata/missing.yaml"}, SopsSecretGenerator{}, true},
 		{"NotYaml", args{"testdata/notyaml.txt"}, SopsSecretGenerator{}, true},
 		{"WrongVersion", args{"testdata/generator-wrongversion.yaml"}, SopsSecretGenerator{}, true},
 		{"WrongKind", args{"testdata/generator-wrongkind.yaml"}, SopsSecretGenerator{}, true},
@@ -203,7 +284,8 @@ func Test_readInput(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := readInput(tt.args.fn)
+			sopsSecretGeneratorManifest, _ := ioutil.ReadFile(tt.args.fn)
+			got, err := readInput(sopsSecretGeneratorManifest)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("readInput() error = %v, wantErr %v", err, tt.wantErr)
 				return
