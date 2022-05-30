@@ -22,7 +22,7 @@ import (
 	"go.mozilla.org/sops/v3"
 	"go.mozilla.org/sops/v3/cmd/sops/formats"
 	"go.mozilla.org/sops/v3/decrypt"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 const apiVersion = "goabout.com/v1beta1"

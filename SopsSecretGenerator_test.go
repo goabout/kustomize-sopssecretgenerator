@@ -135,9 +135,9 @@ func Test_ProcessSopsSecretGenerator(t *testing.T) {
 				apiVersion: v1
 				kind: Secret
 				metadata:
-				  name: secret
+				    name: secret
 				data:
-				  file.txt: c2VjcmV0Cg==
+				    file.txt: c2VjcmV0Cg==
 			`), "\n"),
 			false,
 		},
