@@ -104,7 +104,7 @@ An example showing all options:
     files:
       - secret-file1.txt
       - secret-file2.txt=secret-file2.sops.txt
-    type: Oblique
+    type: Opaque
 
 
 ## Using SopsSecretsGenerator with ArgoCD
