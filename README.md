@@ -30,7 +30,7 @@ move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgene
 For example, to install version 1.5.0 on Linux:
 
     VERSION=1.5.0 PLATFORM=linux ARCH=amd64
-    curl -Lo SopsSecretGenerator https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}
+    curl -Lo SopsSecretGenerator "https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}"
     chmod +x SopsSecretGenerator
     mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
     mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
