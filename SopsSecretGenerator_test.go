@@ -80,6 +80,8 @@ func Test_GenerateKRMManifest(t *testing.T) {
 				kind: Secret
 				metadata:
 				  name: secret-from-env
+				  annotations:
+				    config.k8s.io/id: "2"
 				data:
 				  VAR_ENV: dmFsX2Vudg==
 			`), "\n"),
@@ -93,6 +95,8 @@ func Test_GenerateKRMManifest(t *testing.T) {
 				kind: Secret
 				metadata:
 				  name: secret-from-file
+				  annotations:
+				    config.k8s.io/id: "1"
 				data:
 				  file.txt: c2VjcmV0Cg==
 			`), "\n"),
