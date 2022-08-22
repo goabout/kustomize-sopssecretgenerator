@@ -30,6 +30,10 @@ const kind = "SopsSecretGenerator"
 const oldKind = "SopsSecret"
 
 var utf8bom = []byte{0xEF, 0xBB, 0xBF}
+var stripAnnotations = map[string]bool{
+	"config.kubernetes.io/local-config": true,
+	"config.kubernetes.io/function":     true,
+}
 
 type kvMap map[string]string
 
@@ -177,6 +181,9 @@ func generateSecret(sopsSecret SopsSecretGenerator) (Secret, error) {
 
 	annotations := make(kvMap)
 	for k, v := range sopsSecret.Annotations {
+		if _, skip := stripAnnotations[k]; skip {
+			continue
+		}
 		annotations[k] = v
 	}
 	if !sopsSecret.DisableNameSuffixHash {
