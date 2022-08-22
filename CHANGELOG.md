@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.5.1
+
+* Fix empty output when used as a KRM Function. ([Jim Ramsay](https://github.com/lack))
+
 ## Version 1.5.0
 
 * Allow plugin to be called as a [KRM Function][krm]. ([Ahmed AbouZaid](https://github.com/aabouzaid))
