@@ -554,7 +554,7 @@ func Test_parseFileSource(t *testing.T) {
 		{"Yaml", args{"testdata/file.yaml"}, kvMap{"file.yaml": b64("var: secret\n")}, false},
 		{"Json", args{"testdata/file.json"}, kvMap{"file.json": b64("{\n\t\"var\": \"secret\"\n}")}, false},
 		{"Env", args{"testdata/file.env"}, kvMap{"file.env": b64("VAR=secret\n")}, false},
-		{"Ini", args{"testdata/file.ini"}, kvMap{"file.ini": b64("[section]\nvar = secret\n")}, false},
+		{"Ini", args{"testdata/file.ini"}, kvMap{"file.ini": b64("[section]\nvar = secret\n\n")}, false},
 		{"Binary", args{"testdata/file.txt"}, kvMap{"file.txt": b64("secret\n")}, false},
 		{"BinaryRenamed", args{"renamed.txt=testdata/file.txt"}, kvMap{"renamed.txt": b64("secret\n")}, false},
 		{"MissingFile", args{"testdata/missing.txt"}, kvMap{}, true},
