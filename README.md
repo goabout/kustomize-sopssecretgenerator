@@ -135,7 +135,7 @@ Most of these projects are in constant development. I invite you to check them o
 
 ## Development
 
-You will need [Go](https://golang.org) 1.13 or higher to develop and build the plugin.
+You will need [Go](https://golang.org) 1.17 or higher to develop and build the plugin.
 
 
 ### Test
