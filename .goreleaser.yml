@@ -46,3 +46,19 @@ release:
     owner: goabout
     name: kustomize-sopssecretgenerator
   name_template: "Version {{.Version}}"
+
+dockers:
+  - goos: linux
+    goarch: amd64
+    image_templates:
+      - "goabout/kustomize-sopssecretgenerator:{{ .Tag }}-amd64"
+      - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}-amd64"
+      - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}.{{ .Minor }}-amd64"
+      - "goabout/kustomize-sopssecretgenerator:latest-amd64"
+  - goos: linux
+    goarch: arm64
+    image_templates:
+      - "goabout/kustomize-sopssecretgenerator:{{ .Tag }}-arm64"
+      - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}-arm64"
+      - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}.{{ .Minor }}-arm64"
+      - "goabout/kustomize-sopssecretgenerator:latest-arm64"
