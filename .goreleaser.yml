@@ -50,15 +50,35 @@ release:
 dockers:
   - goos: linux
     goarch: amd64
+    dockerfile: .goreleaser.Dockerfile
     image_templates:
-      - "goabout/kustomize-sopssecretgenerator:{{ .Tag }}-amd64"
+      - "goabout/kustomize-sopssecretgenerator:latest-amd64"
       - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}-amd64"
       - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}.{{ .Minor }}-amd64"
-      - "goabout/kustomize-sopssecretgenerator:latest-amd64"
+      - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64"
   - goos: linux
     goarch: arm64
+    dockerfile: .goreleaser.Dockerfile
     image_templates:
-      - "goabout/kustomize-sopssecretgenerator:{{ .Tag }}-arm64"
+      - "goabout/kustomize-sopssecretgenerator:latest-arm64"
       - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}-arm64"
       - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}.{{ .Minor }}-arm64"
-      - "goabout/kustomize-sopssecretgenerator:latest-arm64"
+      - "goabout/kustomize-sopssecretgenerator:v{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64"
+
+docker_manifests:
+  - name_template: goabout/kustomize-sopssecretgenerator:latest
+    image_templates:
+      - goabout/kustomize-sopssecretgenerator:latest-amd64
+      - goabout/kustomize-sopssecretgenerator:latest-arm64
+  - name_template: goabout/kustomize-sopssecretgenerator:{{ .Major }}
+    image_templates:
+      - goabout/kustomize-sopssecretgenerator:{{ .Major }}-amd64
+      - goabout/kustomize-sopssecretgenerator:{{ .Major }}-arm64
+  - name_template: goabout/kustomize-sopssecretgenerator:{{ .Major }}.{{ .Minor }}
+    image_templates:
+      - goabout/kustomize-sopssecretgenerator:{{ .Major }}.{{ .Minor }}-amd64
+      - goabout/kustomize-sopssecretgenerator:{{ .Major }}.{{ .Minor }}-arm64
+  - name_template: goabout/kustomize-sopssecretgenerator:{{ .Major }}.{{ .Minor }}.{{ .Patch }}
+    image_templates:
+      - goabout/kustomize-sopssecretgenerator:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-amd64
+      - goabout/kustomize-sopssecretgenerator:{{ .Major }}.{{ .Minor }}.{{ .Patch }}-arm64

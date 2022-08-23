@@ -22,15 +22,11 @@ Credit goes to [Seth Pollack](https://github.com/sethpollack) for the [Kustomize
 
 ## Installation
 
-Download the `SopsSecretGenerator` binary for your platform from the
-[GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and
-move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator`. (By default,
-`$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X, and `%LOCALAPPDATA%` on Windows.)
+Download the `SopsSecretGenerator` binary for your platform from the [GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and make it executable.
 
-For example, to install version 1.5.1 on Linux:
-
+For example, to install version 1.6.0 on Linux:
 ```bash
-VERSION=1.5.1 PLATFORM=linux ARCH=amd64
+VERSION=1.6.0 PLATFORM=linux ARCH=amd64
 curl -Lo SopsSecretGenerator "https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}"
 chmod +x SopsSecretGenerator
 ```
@@ -49,7 +45,10 @@ echo secret >secret-file.txt
 sops -e -i secret-file.txt
 ```
 
-### kustomize KRM exec plugin
+
+### Exec KRM Function
+
+Although the generator is available as a Docker image, it often needs to access to local resources such as the filesystem or a PGP socket. This example calls the binary directly.
 
 Add a generator to your kustomization:
 ```bash
@@ -65,7 +64,7 @@ metadata:
   annotations:
    config.kubernetes.io/function: |
       exec:
-        path: SopsSecretGenerator
+        path: ./SopsSecretGenerator
   name: my-secret
 envs:
   - secret-vars.env
@@ -74,10 +73,12 @@ files:
 .
 ```
 
+(Change the path to the `SopsSecretGenerator` binary to suit your installation. Kustomize will use the binary search path, `$PATH`, if you use a bare command.)
+
 Run `kustomize build` with the `--enable-alpha-plugins` and `--enable-exec` flags:
 
 ```bash
-kustomize build --enable-alpha-plugins
+kustomize build --enable-alpha-plugins --enable-exec
 ```
     
 The output is a Kubernetes secret containing the decrypted data:
@@ -91,9 +92,10 @@ metadata:
   name: my-secret-6d2fchb89d
 ```
 
-### Legacy plugin
 
-First, install the plugin to `$XDG_CONFIG_HOME`:
+### Legacy Plugin
+
+First, install the plugin to `$XDG_CONFIG_HOME`: (By default, `$XDG_CONFIG_HOME` points to `$HOME/.config` on Linux and OS X, and `%LOCALAPPDATA%` on Windows.)
 ```bash
 mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
 mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
@@ -117,6 +119,7 @@ files:
   - secret-file.txt
 .
 ```
+
 
 ### Generator Options
 

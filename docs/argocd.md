@@ -30,7 +30,7 @@ Use a kustomize [patchStrategicMerge](https://github.com/kubernetes-sigs/kustomi
                   name: custom-tools
               env:
                 - name: VERSION
-                  value: 1.5.1
+                  value: 1.6.0
                 - name: PLATFORM
                   value: linux
                 - name: ARCH

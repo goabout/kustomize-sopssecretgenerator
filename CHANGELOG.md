@@ -1,5 +1,9 @@
 # Changelog
 
+## Version 1.6.0
+
+* Build Docker images.
+
 ## Version 1.5.1
 
 * Fix empty output when used as a KRM Function. ([Jim Ramsay](https://github.com/lack))
