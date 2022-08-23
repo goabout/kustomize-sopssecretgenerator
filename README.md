@@ -29,58 +29,96 @@ move it to `$XDG_CONFIG_HOME/kustomize/plugin/goabout.com/v1beta1/sopssecretgene
 
 For example, to install version 1.5.1 on Linux:
 
-    VERSION=1.5.1 PLATFORM=linux ARCH=amd64
-    curl -Lo SopsSecretGenerator "https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}"
-    chmod +x SopsSecretGenerator
-    mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
-    mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
+```bash
+VERSION=1.5.1 PLATFORM=linux ARCH=amd64
+curl -Lo SopsSecretGenerator "https://github.com/goabout/kustomize-sopssecretgenerator/releases/download/v${VERSION}/SopsSecretGenerator_${VERSION}_${PLATFORM}_${ARCH}"
+chmod +x SopsSecretGenerator
+```
 
 You do not need to install the `sops` binary for the plugin to work. The plugin includes and calls sops internally.
 
 
 ## Usage
 
-**Note:** This section documents legacy exec plugin usage. Usage as a KRM Function is also supported but not yet documented.
-
 Create some encrypted values using `sops`:
+```bash
+echo FOO=secret >secret-vars.env
+sops -e -i secret-vars.env
 
-    echo FOO=secret >secret-vars.env
-    sops -e -i secret-vars.env
-    
-    echo secret >secret-file.txt
-    sops -e -i secret-file.txt
+echo secret >secret-file.txt
+sops -e -i secret-file.txt
+```
+
+### kustomize KRM exec plugin
 
 Add a generator to your kustomization:
+```bash
+cat <<. >kustomization.yaml
+generators:
+  - generator.yaml
+.
 
-    cat <<. >kustomization.yaml
-    generators:
-      - generator.yaml
-    .
+cat <<. >generator.yaml
+apiVersion: goabout.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  annotations:
+   config.kubernetes.io/function: |
+      exec:
+        path: SopsSecretGenerator
+  name: my-secret
+envs:
+  - secret-vars.env
+files:
+  - secret-file.txt
+.
+```
 
-    cat <<. >generator.yaml
-    apiVersion: goabout.com/v1beta1
-    kind: SopsSecretGenerator
-    metadata:
-      name: my-secret
-    envs:
-      - secret-vars.env
-    files:
-      - secret-file.txt
-    .
-      
-Run `kustomize build` with the `--enable-alpha-plugins` flag:
+Run `kustomize build` with the `--enable-alpha-plugins` and `--enable-exec` flags:
 
-    kustomize build --enable-alpha-plugins
+```bash
+kustomize build --enable-alpha-plugins
+```
     
 The output is a Kubernetes secret containing the decrypted data:
+```yaml
+apiVersion: v1
+data:
+  FOO: J3NlY3JldCc=
+  secret-file.txt: c2VjcmV0Cg==
+kind: Secret
+metadata:
+  name: my-secret-6d2fchb89d
+```
 
-    apiVersion: v1
-    data:
-      FOO: J3NlY3JldCc=
-      secret-file.txt: c2VjcmV0Cg==
-    kind: Secret
-    metadata:
-      name: my-secret-6d2fchb89d
+### Legacy plugin
+
+First, install the plugin to `$XDG_CONFIG_HOME`:
+```bash
+mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
+mv SopsSecretGenerator "${XDG_CONFIG_HOME:-$HOME/.config}/kustomize/plugin/goabout.com/v1beta1/sopssecretgenerator"
+```
+
+Add a generator to your kustomization:
+```bash
+cat <<. >kustomization.yaml
+generators:
+  - generator.yaml
+.
+
+cat <<. >generator.yaml
+apiVersion: goabout.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  name: my-secret
+envs:
+  - secret-vars.env
+files:
+  - secret-file.txt
+.
+```
+
+### Generator Options
 
 Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://kubernetes-sigs.github.io/kustomize/api-reference/kustomization/generatoroptions/) fields. Additionally, labels and annotations are copied over to the Secret. Data key-values ("envs") can be read from dotenv, INI, YAML and JSON files. If the data is a file and the Secret data key needs to be different from the filename, you can specify the key by adding `desiredKey=filename` instead of just the filename.
 
