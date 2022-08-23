@@ -22,6 +22,11 @@ Credit goes to [Seth Pollack](https://github.com/sethpollack) for the [Kustomize
 
 ## Installation
 
+
+SopsSecretGenerator is available as a binary, or as a Docker image.
+
+### Binary
+
 Download the `SopsSecretGenerator` binary for your platform from the [GitHub releases page](https://github.com/goabout/kustomize-sopssecretgenerator/releases) and make it executable.
 
 For example, to install version 1.6.0 on Linux:
@@ -32,6 +37,11 @@ chmod +x SopsSecretGenerator
 ```
 
 You do not need to install the `sops` binary for the plugin to work. The plugin includes and calls sops internally.
+
+
+### Docker image
+
+See the [goabout/kustomize-sopssecretgenerator](https://hub.docker.com/repository/docker/goabout/kustomize-sopssecretgenerator) image at Docker Hub.
 
 
 ## Usage
@@ -48,7 +58,7 @@ sops -e -i secret-file.txt
 
 ### Exec KRM Function
 
-Although the generator is available as a Docker image, it often needs to access to local resources such as the filesystem or a PGP socket. This example calls the binary directly.
+Although the generator can run in a Docker container, any real usage requires to access to local resources such as the filesystem or a PGP socket. This example calls the binary directly.
 
 Add a generator to your kustomization:
 ```bash
