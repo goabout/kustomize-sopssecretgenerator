@@ -118,7 +118,15 @@ func main() {
 			usage()
 		}
 
-		secretManifest := generateSecretManifest(sopsSecretGeneratorManifest)
+		secretManifest, err := processSopsSecretGenerator(sopsSecretGeneratorManifest)
+		if err != nil {
+			if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
+				_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
+			} else {
+				_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			}
+			os.Exit(2)
+		}
 		fmt.Print(secretManifest)
 	}
 }
@@ -129,10 +137,15 @@ func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
 	var generatedSecrets fn.KubeObjects
 
 	for _, sopsSecretGeneratorManifest := range rl.Items {
-		secretManifest := generateSecretManifest([]byte(sopsSecretGeneratorManifest.String()))
+		secretManifest, err := processSopsSecretGenerator([]byte(sopsSecretGeneratorManifest.String()))
+		if err != nil {
+			rl.LogResult(err)
+			return false, err
+		}
 
 		secretKubeObject, err := fn.ParseKubeObject([]byte(secretManifest))
 		if err != nil {
+			rl.LogResult(err)
 			return false, err
 		}
 
@@ -142,19 +155,6 @@ func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
 	rl.Items = generatedSecrets
 
 	return true, nil
-}
-
-func generateSecretManifest(manifestContent []byte) string {
-	output, err := processSopsSecretGenerator(manifestContent)
-	if err != nil {
-		if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
-			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
-		} else {
-			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		}
-		os.Exit(2)
-	}
-	return output
 }
 
 func processSopsSecretGenerator(manifestContent []byte) (string, error) {
