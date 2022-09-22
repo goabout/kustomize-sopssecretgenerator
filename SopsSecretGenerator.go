@@ -193,8 +193,19 @@ func decryptExtraObjects(input SopsSecretGenerator) ([]string, error) {
 		if err != nil {
 			return result, err
 		}
-		// TODO: If the result is a multi-entry yaml, do we need to split it?
-		result = append(result, string(decrypted))
+		if formats.FormatForPath(file) == formats.Yaml {
+			// Process each interior yaml object separately
+			parts := bytes.Split(decrypted, []byte("\n---"))
+			for _, part := range parts {
+				part = bytes.TrimFunc(part, unicode.IsSpace)
+				// checking >2 accounts for empty buffers plus the null {} yaml document
+				if len(part) > 2 {
+					result = append(result, string(part))
+				}
+			}
+		} else {
+			result = append(result, string(decrypted))
+		}
 	}
 	return result, nil
 }

@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: cfg
+    labels:
+        app: test
+data:
+    one: "1"
+    two: "2"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+    name: secret
+data:
+    username: ENC[AES256_GCM,data:VJFrFe1q7MX51m9D,iv:duD7OD/6f6FniTzcolnVeskOCTXUXJ4ZE9bA36hZMtc=,tag:xKaarLbpMAE45AZBpEdKNQ==,type:str]
+    password: ENC[AES256_GCM,data:E8cBaGOBTZ1984jFwPEfEw==,iv:RrogeHD8fjCpjxdSk3pzkV+3PMGwqaxaXjl0via3oYs=,tag:UTD33PaKZ9TSPAIT99dv0Q==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-09-22T08:46:31Z"
+    mac: ENC[AES256_GCM,data:afztjySyuPtYHSI/jlG8OQwWN6U2NR4qTiD2aGuWsJ/sGwo1SxvLPm5+ku3q+20Z/4yHumeDmSyHRhRp4wMOjjdfqGK0ZYqOqtpH6VDdb9dMaPpTMpYk0P+9IZMqM+FubOXLsDKjzvoYjvKcHyntUgkECVKeCFgHj8bxDquK0Rg=,iv:bQG+vsq1Avn/zaNIsJ6D+ADkVPyY9wU2CJXsnrKxgYY=,tag:K8mNIG8lP7xO+rHuAd242g==,type:str]
+    pgp:
+        - created_at: "2022-09-22T08:46:31Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQEMA6z+tHR/duVIAQf+KyycdXkTAb52GoHBLsym1ONZtyLDz+SgtRhrvmM1lUHG
+            DN9sz5bYYyxX/Q49BwddDPPzkqdcRVVZOfRy4mbTFmScCesSD/VP5uo0p+q2NIhH
+            tJFTezbuzPB0HboCKfCOYXcfXNmLqm4EHbOy+hjjpSXs9eSnYn8vT6X7uYfeaLKb
+            Z6Lln6+qTjJ72H+CvmTxYzjHTCChvHvUi0nSBsgYOgzb8/cAntdcOadVCKYqLkdJ
+            8BrmZQqSMiP7Us1492glKXQ2kLpShT/m/pZU2kLCpOiRchSUqaqLkr1Jt84++ewa
+            vQ0AR6pPF5+AfDolGocukGx4wF9NrHyuwQC/2QcGKtJcAbVmKa5QG/GCsE1hAJK3
+            0BDb9udMlw1rrgZReZQZHMgICAk11OSk7xlx9q4z4YUcChJLbVhlgfmuKkdXQxJ6
+            Opqib5Aq2vqQirWK1AbA1rkr3JtyTZ/TvTL/Qgg=
+            =mM06
+            -----END PGP MESSAGE-----
+          fp: 2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4
+    encrypted_regex: ^data$
+    version: 3.7.3

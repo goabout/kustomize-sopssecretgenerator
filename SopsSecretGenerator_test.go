@@ -78,7 +78,7 @@ func Test_GenerateKRMManifest(t *testing.T) {
 			"Multiple inputs",
 			args{"testdata/krm-function-input.yaml"},
 			wanted{[]string{
-				strings.TrimLeft(dedent.Dedent(`
+				strings.Trim(dedent.Dedent(`
 					apiVersion: v1
 					kind: ConfigMap
 					metadata:
@@ -115,7 +115,7 @@ func Test_GenerateKRMManifest(t *testing.T) {
 			"Single input",
 			args{"testdata/krm-combined.yaml"},
 			wanted{[]string{
-				strings.TrimLeft(dedent.Dedent(`
+				strings.Trim(dedent.Dedent(`
 					apiVersion: v1
 					kind: ConfigMap
 					metadata:
@@ -202,7 +202,7 @@ func Test_ProcessSopsSecretGenerator(t *testing.T) {
 			"Object Passthrough",
 			args{"testdata/generator-obj.yaml"},
 			[]string{
-				strings.TrimLeft(dedent.Dedent(`
+				strings.Trim(dedent.Dedent(`
 				    apiVersion: v1
 				    kind: ConfigMap
 				    metadata:
@@ -228,7 +228,7 @@ func Test_ProcessSopsSecretGenerator(t *testing.T) {
 				    data:
 				        file.txt: c2VjcmV0Cg==
 				`), "\n"),
-				strings.TrimLeft(dedent.Dedent(`
+				strings.Trim(dedent.Dedent(`
 				    apiVersion: v1
 				    kind: ConfigMap
 				    metadata:
@@ -763,6 +763,94 @@ func Test_decryptExtraObjects(t *testing.T) {
 		{
 			"Bad file path",
 			args{[]string{"testdata/no-such-file.yaml"}},
+			want{[]string{}, true},
+		},
+		{
+			"Multiple objects (data encryption)",
+			args{[]string{"testdata/obj-multi-encrypted.yaml"}},
+			want{[]string{
+				strings.Trim(dedent.Dedent(`
+				apiVersion: v1
+				kind: ConfigMap
+				metadata:
+				    name: cfg
+				    labels:
+				        app: test
+				data:
+				    one: "1"
+				    two: "2"
+				`), "\n"),
+				strings.Trim(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					    name: secret
+					data:
+					    username: amFzbWluZQo=
+					    password: dFlnM3J0WWczcgo=
+				`), "\n"),
+			}, false},
+		},
+		{
+			"Multiple objects (all fields encrypted)",
+			args{[]string{"testdata/obj-multi-allfields.yaml"}},
+			want{[]string{
+				strings.Trim(dedent.Dedent(`
+				apiVersion: v1
+				kind: ConfigMap
+				metadata:
+				    name: cfg
+				    labels:
+				        app: test
+				data:
+				    one: "1"
+				    two: "2"
+				`), "\n"),
+				strings.Trim(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					    name: secret
+					data:
+					    username: amFzbWluZQo=
+					    password: dFlnM3J0WWczcgo=
+				`), "\n"),
+			}, false},
+		},
+		{
+			"Multiple objects (with empty yaml sections)",
+			args{[]string{"testdata/obj-multi-emptydocs.yaml"}},
+			want{[]string{
+				strings.Trim(dedent.Dedent(`
+				apiVersion: v1
+				kind: ConfigMap
+				metadata:
+				    name: cfg
+				    labels:
+				        app: test
+				data:
+				    one: "1"
+				    two: "2"
+				`), "\n"),
+				strings.Trim(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					    name: secret
+					data:
+					    username: amFzbWluZQo=
+					    password: dFlnM3J0WWczcgo=
+				`), "\n"),
+			}, false},
+		},
+		{
+			"Multiple objects (one not encrypted)",
+			args{[]string{"testdata/obj-multi-partial.yaml"}},
+			want{[]string{}, true},
+		},
+		{
+			"Multiple objects (not encrypted)",
+			args{[]string{"testdata/obj-multi-unencrypted.yaml"}},
 			want{[]string{}, true},
 		},
 	}

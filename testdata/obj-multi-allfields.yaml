@@ -1,0 +1,69 @@
+apiVersion: ENC[AES256_GCM,data:3kU=,iv:9pul3/VFhdPZUSPTUeTjWPgpLwSKn6i/uJ0dPK7kWyU=,tag:PXUxiu3RLL4e1yYxaLGSHA==,type:str]
+kind: ENC[AES256_GCM,data:z520L05B2agn,iv:m7O91UWbFqDZbsT9d+kJaS5KiHyji+aAe3zCNshYWrQ=,tag:eM3RGni9Wqk2T63vciJbeQ==,type:str]
+metadata:
+    name: ENC[AES256_GCM,data:fB59,iv:zOZ2qffVYkgZ4oOFGPNdZX+/0RWE/Ruldnmy8Sg/ZTo=,tag:6lsC3cYYbWER+WzHW+upRQ==,type:str]
+    labels:
+        app: ENC[AES256_GCM,data:iQ/YGw==,iv:n0pwfVnimCu4JcePlU0XqiVyqMINFXfNHNuUNW61igs=,tag:SCa2dFMQ2Dn1S8uKuscWmA==,type:str]
+data:
+    one: ENC[AES256_GCM,data:Qg==,iv:5G9LlKJ7GJQBOETG+p2wIiINAFVMJ4YN4DnvXtFnLvY=,tag:27ViXaJtZiTU8TFFNqtxQA==,type:str]
+    two: ENC[AES256_GCM,data:sA==,iv:lMNdPXrFKjtufy8WYuPu6rxxHFB38gvM8p1asAL32ZY=,tag:6OLj+arLeuDzKELhRV7O0A==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-09-22T08:45:01Z"
+    mac: ENC[AES256_GCM,data:b1F8qVK9P8hwS55QKHqIgS2ASTTqY/WXSdcoRUyGzcgJmUV3ymRQ7ffiyC0NxkkXjgVxYCInPGRKzmRlXixy0HwIW7sepKuEBGm0CVbGUvou4p+D9C+1z18piX+8SG4etHlkY1bjuIX7KZICHV8GLGES8d42OGimhQbZLoM151Y=,iv:IzB2iCVj3UCwV5OW+DzqMAL/MOJI2IO3Lp63AaY0ecw=,tag:A11QuBryEIi69wzuGHYZFA==,type:str]
+    pgp:
+        - created_at: "2022-09-22T08:45:01Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQEMA6z+tHR/duVIAQf+JY2HwUeeNzGWX0bJzBGfYUpd6om37HJSb0bquct/Ko9n
+            TpnrBl3fZgs7uEkFdBqj4dlM6jNoFZeNuw3Y4AJM/5/ypEjfuRy+XZrRV4a21eHY
+            5pff5371XpuigJifctacIQz29M7d9ZqJ53Pritcd1sTtBy8T+sOQAu8LtdVFjXqj
+            tIpuZGfMtfL1K3X8Cr3Rmt3w0sk/1C7lHrNcuG2636hjMfZiKFJKueFO/lqDQNPO
+            04x2Cs402p3TeHqgCJZU7b0KbT66nPnPRMHaZfkV+QqEMHH1+9koagR/knUxqAUc
+            g1GasIdCShp/2JvocnmMRmv44ZvjRaVlMTwGVUinQtJeARv1vhxXsSV4ferECLKz
+            q9JacWWGuFwqG8pVr6cF+s1JZbYJOK7l00Yz8nIGnG5Pxx42StcnSNlEO1LmYbt4
+            9j7hVwklQl0/wUd7eJ+aesm0Q+MBG4AXrjvjkn78UA==
+            =RvwS
+            -----END PGP MESSAGE-----
+          fp: 2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4
+    unencrypted_suffix: _unencrypted
+    version: 3.7.3
+---
+apiVersion: ENC[AES256_GCM,data:jDY=,iv:x2vRA2+5OqbA1YfJwhE9b5e91G/xM5IIUyknaqpB49w=,tag:E6fwXtz1kD+nJ3TfX2Louw==,type:str]
+kind: ENC[AES256_GCM,data:LDIqHSy3,iv:c7tfo8/NtMEPuWUFGjIzqVzhQntQPm26Dtk7970KmhI=,tag:lrNww/DP/MR2W1dmHG41Jg==,type:str]
+metadata:
+    name: ENC[AES256_GCM,data:ukRU05DM,iv:gUXwACsQ+fA352I813HAK1/JPmWHVMjbPza3JncjH3U=,tag:4M1NLZLdIOoueY3B6k7F0w==,type:str]
+data:
+    username: ENC[AES256_GCM,data:eT4TWRyyZfGltao4,iv:bBIoIOv9mL55GyUhGtd8RPPMcbNMZZEegZ53O7ZpTLE=,tag:NbSnZ4RJnbWvF2yrcIZK8Q==,type:str]
+    password: ENC[AES256_GCM,data:OjnHWDD48nGQAhsfC1ei2w==,iv:uiQprrbOjBpAhl29XCKRI/1g0Hicdp4O33rBKP/zEnY=,tag:NKQ8n3+PRRuwaiKJrybnsg==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-09-22T08:45:01Z"
+    mac: ENC[AES256_GCM,data:b1F8qVK9P8hwS55QKHqIgS2ASTTqY/WXSdcoRUyGzcgJmUV3ymRQ7ffiyC0NxkkXjgVxYCInPGRKzmRlXixy0HwIW7sepKuEBGm0CVbGUvou4p+D9C+1z18piX+8SG4etHlkY1bjuIX7KZICHV8GLGES8d42OGimhQbZLoM151Y=,iv:IzB2iCVj3UCwV5OW+DzqMAL/MOJI2IO3Lp63AaY0ecw=,tag:A11QuBryEIi69wzuGHYZFA==,type:str]
+    pgp:
+        - created_at: "2022-09-22T08:45:01Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQEMA6z+tHR/duVIAQf+JY2HwUeeNzGWX0bJzBGfYUpd6om37HJSb0bquct/Ko9n
+            TpnrBl3fZgs7uEkFdBqj4dlM6jNoFZeNuw3Y4AJM/5/ypEjfuRy+XZrRV4a21eHY
+            5pff5371XpuigJifctacIQz29M7d9ZqJ53Pritcd1sTtBy8T+sOQAu8LtdVFjXqj
+            tIpuZGfMtfL1K3X8Cr3Rmt3w0sk/1C7lHrNcuG2636hjMfZiKFJKueFO/lqDQNPO
+            04x2Cs402p3TeHqgCJZU7b0KbT66nPnPRMHaZfkV+QqEMHH1+9koagR/knUxqAUc
+            g1GasIdCShp/2JvocnmMRmv44ZvjRaVlMTwGVUinQtJeARv1vhxXsSV4ferECLKz
+            q9JacWWGuFwqG8pVr6cF+s1JZbYJOK7l00Yz8nIGnG5Pxx42StcnSNlEO1LmYbt4
+            9j7hVwklQl0/wUd7eJ+aesm0Q+MBG4AXrjvjkn78UA==
+            =RvwS
+            -----END PGP MESSAGE-----
+          fp: 2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4
+    unencrypted_suffix: _unencrypted
+    version: 3.7.3
