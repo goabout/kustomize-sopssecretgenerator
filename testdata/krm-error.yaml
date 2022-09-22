@@ -1,0 +1,18 @@
+apiVersion: config.kubernetes.io/v1
+kind: ResourceList
+metadata:
+  name: krm-function-input
+items:
+- apiVersion: goabout.com/v1beta1
+  kind: SoupSecretGenerator
+  metadata:
+    annotations:
+      config.kubernetes.io/function: |
+        exec:
+          path: SopsSecretGenerator
+      config.kubernetes.io/local-config: 'true'
+      config.k8s.io/id: '1'
+    name: secret-from-file
+  disableNameSuffixHash: true
+  files:
+    - testdata/file.txt

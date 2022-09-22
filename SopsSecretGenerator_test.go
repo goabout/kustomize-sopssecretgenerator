@@ -117,6 +117,11 @@ func Test_GenerateKRMManifest(t *testing.T) {
 				`), "\n"),
 			}, false},
 		},
+		{
+			"Malformed input",
+			args{"testdata/krm-error.yaml"},
+			wanted{[]string{}, true},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
