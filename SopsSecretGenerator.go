@@ -269,18 +269,12 @@ func parseEnvSources(sources []string, data kvMap) error {
 }
 
 func parseEnvSource(source string, data kvMap) error {
-	content, err := ioutil.ReadFile(source)
+	decrypted, err := decryptFile(source)
 	if err != nil {
-		return errors.Wrap(err, "could not read file")
+		return err
 	}
 
-	format := formats.FormatForPath(source)
-	decrypted, err := decrypt.DataWithFormat(content, format)
-	if err != nil {
-		return errors.Wrap(err, "sops could not decrypt")
-	}
-
-	switch format {
+	switch formats.FormatForPath(source) {
 	case formats.Dotenv:
 		err = parseDotEnvContent(decrypted, data)
 	case formats.Yaml:
@@ -369,20 +363,28 @@ func parseFileSources(sources []string, data kvMap) error {
 	return nil
 }
 
+func decryptFile(source string) ([]byte, error) {
+	content, err := ioutil.ReadFile(source)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read file")
+	}
+
+	decrypted, err := decrypt.DataWithFormat(content, formats.FormatForPath(source))
+	if err != nil {
+		return nil, errors.Wrap(err, "sops could not decrypt")
+	}
+	return decrypted, nil
+}
+
 func parseFileSource(source string, data kvMap) error {
 	key, fn, err := parseFileName(source)
 	if err != nil {
 		return err
 	}
 
-	content, err := ioutil.ReadFile(fn)
+	decrypted, err := decryptFile(fn)
 	if err != nil {
-		return errors.Wrap(err, "could not read file")
-	}
-
-	decrypted, err := decrypt.DataWithFormat(content, formats.FormatForPath(source))
-	if err != nil {
-		return errors.Wrap(err, "sops could not decrypt")
+		return err
 	}
 
 	data[key] = base64.StdEncoding.EncodeToString(decrypted)
