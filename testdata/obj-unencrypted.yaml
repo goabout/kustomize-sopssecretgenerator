@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: cfg
+    labels:
+        app: test
+data:
+    one: "1"
+    two: "2"

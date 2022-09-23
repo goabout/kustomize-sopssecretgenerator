@@ -57,6 +57,7 @@ type SopsSecretGenerator struct {
 	ObjectMeta            `json:"metadata" yaml:"metadata"`
 	EnvSources            []string `json:"envs" yaml:"envs"`
 	FileSources           []string `json:"files" yaml:"files"`
+	ObjSources            []string `json:"objects" yaml:"objects"`
 	Behavior              string   `json:"behavior,omitempty" yaml:"behavior,omitempty"`
 	DisableNameSuffixHash bool     `json:"disableNameSuffixHash,omitempty" yaml:"disableNameSuffixHash,omitempty"`
 	Type                  string   `json:"type,omitempty" yaml:"type,omitempty"`
@@ -118,7 +119,7 @@ func main() {
 			usage()
 		}
 
-		secretManifest, err := processSopsSecretGenerator(sopsSecretGeneratorManifest)
+		secretManifests, err := processSopsSecretGenerator(sopsSecretGeneratorManifest)
 		if err != nil {
 			if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
 				_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
@@ -127,7 +128,7 @@ func main() {
 			}
 			os.Exit(2)
 		}
-		fmt.Print(secretManifest)
+		fmt.Print(strings.Join(secretManifests, "---\n"))
 	}
 }
 
@@ -137,19 +138,20 @@ func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
 	var generatedSecrets fn.KubeObjects
 
 	for _, sopsSecretGeneratorManifest := range rl.Items {
-		secretManifest, err := processSopsSecretGenerator([]byte(sopsSecretGeneratorManifest.String()))
+		secretManifests, err := processSopsSecretGenerator([]byte(sopsSecretGeneratorManifest.String()))
 		if err != nil {
 			rl.LogResult(err)
 			return false, err
 		}
 
-		secretKubeObject, err := fn.ParseKubeObject([]byte(secretManifest))
-		if err != nil {
-			rl.LogResult(err)
-			return false, err
+		for _, secretManifest := range secretManifests {
+			secretKubeObject, err := fn.ParseKubeObject([]byte(secretManifest))
+			if err != nil {
+				rl.LogResult(err)
+				return false, err
+			}
+			generatedSecrets = append(generatedSecrets, secretKubeObject)
 		}
-
-		generatedSecrets = append(generatedSecrets, secretKubeObject)
 	}
 
 	rl.Items = generatedSecrets
@@ -157,20 +159,44 @@ func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
 	return true, nil
 }
 
-func processSopsSecretGenerator(manifestContent []byte) (string, error) {
+func processSopsSecretGenerator(manifestContent []byte) ([]string, error) {
 	input, err := readInput(manifestContent)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	secret, err := generateSecret(input)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	output, err := yaml.Marshal(secret)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	return string(output), nil
+	objects := []string{}
+	if len(secret.Data) > 0 {
+		objects = append(objects, string(output))
+	}
+	extras, err := decryptExtraObjects(input)
+	if err != nil {
+		return nil, err
+	}
+	if len(extras) > 0 {
+		objects = append(objects, extras...)
+	}
+	return objects, nil
+}
+
+func decryptExtraObjects(input SopsSecretGenerator) ([]string, error) {
+	result := []string{}
+	for _, file := range input.ObjSources {
+		decrypted, err := decryptFile(file)
+		if err != nil {
+			return result, err
+		}
+		// TODO: If the result is a multi-entry yaml, do we need to split it?
+		result = append(result, string(decrypted))
+	}
+	return result, nil
 }
 
 func generateSecret(sopsSecret SopsSecretGenerator) (Secret, error) {

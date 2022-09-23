@@ -80,6 +80,17 @@ func Test_GenerateKRMManifest(t *testing.T) {
 			wanted{[]string{
 				strings.TrimLeft(dedent.Dedent(`
 					apiVersion: v1
+					kind: ConfigMap
+					metadata:
+					  name: cfg
+					  labels:
+					    app: test
+					data:
+					  one: "1"
+					  two: "2"
+				`), "\n"),
+				strings.TrimLeft(dedent.Dedent(`
+					apiVersion: v1
 					kind: Secret
 					metadata:
 					  name: secret-from-env
@@ -104,6 +115,17 @@ func Test_GenerateKRMManifest(t *testing.T) {
 			"Single input",
 			args{"testdata/krm-combined.yaml"},
 			wanted{[]string{
+				strings.TrimLeft(dedent.Dedent(`
+					apiVersion: v1
+					kind: ConfigMap
+					metadata:
+					  name: cfg
+					  labels:
+					    app: test
+					data:
+					  one: "1"
+					  two: "2"
+				`), "\n"),
 				strings.TrimLeft(dedent.Dedent(`
 					apiVersion: v1
 					kind: Secret
@@ -158,23 +180,69 @@ func Test_ProcessSopsSecretGenerator(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    string
+		want    []string
 		wantErr bool
 	}{
 		{
 			"SopsSecretGenerator",
 			args{"testdata/generator.yaml"},
-			strings.TrimLeft(dedent.Dedent(`
-				apiVersion: v1
-				kind: Secret
-				metadata:
-				    name: secret
-				data:
-				    file.txt: c2VjcmV0Cg==
-			`), "\n"),
+			[]string{
+				strings.TrimLeft(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					    name: secret
+					data:
+					    file.txt: c2VjcmV0Cg==
+				`), "\n"),
+			},
 			false,
 		},
-		{"InvalidEnvs", args{"testdata/generator-invalidenv.yaml"}, "", true},
+		{
+			"Object Passthrough",
+			args{"testdata/generator-obj.yaml"},
+			[]string{
+				strings.TrimLeft(dedent.Dedent(`
+				    apiVersion: v1
+				    kind: ConfigMap
+				    metadata:
+				        name: cfg
+				        labels:
+				            app: test
+				    data:
+				        one: "1"
+				        two: "2"
+				`), "\n"),
+			},
+			false,
+		},
+		{
+			"Combined secret+object",
+			args{"testdata/generator-all.yaml"},
+			[]string{
+				strings.TrimLeft(dedent.Dedent(`
+				    apiVersion: v1
+				    kind: Secret
+				    metadata:
+				        name: secret
+				    data:
+				        file.txt: c2VjcmV0Cg==
+				`), "\n"),
+				strings.TrimLeft(dedent.Dedent(`
+				    apiVersion: v1
+				    kind: ConfigMap
+				    metadata:
+				        name: cfg
+				        labels:
+				            app: test
+				    data:
+				        one: "1"
+				        two: "2"
+				`), "\n"),
+			},
+			false,
+		},
+		{"InvalidEnvs", args{"testdata/generator-invalidenv.yaml"}, nil, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -184,7 +252,7 @@ func Test_ProcessSopsSecretGenerator(t *testing.T) {
 				t.Errorf("processSopsSecretGenerator() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
+			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("processSopsSecretGenerator() got = %v, want %v", got, tt.want)
 			}
 		})
@@ -635,6 +703,83 @@ func Test_parseFileName(t *testing.T) {
 			}
 			if got1 != tt.wantFile {
 				t.Errorf("parseFileName() got1 = %v, wantFile %v", got1, tt.wantFile)
+			}
+		})
+	}
+}
+
+func Test_decryptExtraObjects(t *testing.T) {
+	type args struct {
+		sources []string
+	}
+	type want struct {
+		data []string
+		err  bool
+	}
+	tests := []struct {
+		name string
+		args args
+		want want
+	}{
+		{
+			"Single object (data encryption)",
+			args{[]string{"testdata/obj-encrypted.yaml"}},
+			want{[]string{
+				strings.Trim(dedent.Dedent(`
+				apiVersion: v1
+				kind: ConfigMap
+				metadata:
+				    name: cfg
+				    labels:
+				        app: test
+				data:
+				    one: "1"
+				    two: "2"
+				`), "\n"),
+			}, false},
+		},
+		{
+			"Single object (all fields encrypted)",
+			args{[]string{"testdata/obj-allfields.yaml"}},
+			want{[]string{
+				strings.Trim(dedent.Dedent(`
+				apiVersion: v1
+				kind: ConfigMap
+				metadata:
+				    name: cfg
+				    labels:
+				        app: test
+				data:
+				    one: "1"
+				    two: "2"
+				`), "\n"),
+			}, false},
+		},
+		{
+			"Single object (not encrypted)",
+			args{[]string{"testdata/obj-unencrypted.yaml"}},
+			want{[]string{}, true},
+		},
+		{
+			"Bad file path",
+			args{[]string{"testdata/no-such-file.yaml"}},
+			want{[]string{}, true},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sg := SopsSecretGenerator{
+				ObjSources: tt.args.sources,
+			}
+			got, err := decryptExtraObjects(sg)
+			if (err != nil) != tt.want.err {
+				t.Errorf("parseFileName() error = %v, wantErr %v", err, tt.want.err)
+			}
+			if err != nil {
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want.data) {
+				t.Errorf("decryptExtraObjects() got = %v, want %v", got, tt.want.data)
 			}
 		})
 	}

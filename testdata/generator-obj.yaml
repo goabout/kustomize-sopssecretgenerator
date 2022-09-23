@@ -1,0 +1,7 @@
+apiVersion: goabout.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  name: secret
+disableNameSuffixHash: true
+objects:
+  - testdata/obj-encrypted.yaml

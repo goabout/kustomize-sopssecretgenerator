@@ -18,3 +18,5 @@ items:
     - testdata/file.txt
   envs:
     - testdata/vars.env
+  objects:
+    - testdata/obj-encrypted.yaml

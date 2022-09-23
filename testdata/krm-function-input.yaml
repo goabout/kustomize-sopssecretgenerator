@@ -29,3 +29,15 @@ items:
   disableNameSuffixHash: true
   envs:
     - testdata/vars.env
+- apiVersion: goabout.com/v1beta1
+  kind: SopsSecretGenerator
+  metadata:
+    annotations:
+      config.kubernetes.io/function: |
+        exec:
+          path: SopsSecretGenerator
+      config.kubernetes.io/local-config: 'true'
+      config.k8s.io/id: '3'
+    name: arbitrary-obj
+  objects:
+    - testdata/obj-encrypted.yaml

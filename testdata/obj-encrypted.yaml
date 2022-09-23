@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: cfg
+    labels:
+        app: test
+data:
+    one: ENC[AES256_GCM,data:kQ==,iv:uY++Lb9Zpsv71DxAghvYSr3pCUlRTl20rzSCIlWRVwk=,tag:Fn2upysSBuN6guDmk+o6hw==,type:str]
+    two: ENC[AES256_GCM,data:Aw==,iv:xArvhe+CAtKlM62HDHTGJpRko7hFREbCzRgnJzGhXuw=,tag:OaLSCBQfkw4mportyvwMiQ==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-09-22T08:15:50Z"
+    mac: ENC[AES256_GCM,data:UJw5OHqx5yzWdPrJeTufCn9YP91zgEulirrnHg3pEPlTOwlsYlgnToOmsBMBUxiWl5cotaRLtOYL14r84659bw4Yu290H7hqWV1c86XbnXiH0AOmj8lQZabsRamKQ5wS59oZ+pdbRtrd+wrSZeBopUE3J1UKI3nPWBHy16Br01U=,iv:l9oRiszFbkUo14W/To1d8tsfWpKNlbrliDeDE9AVMts=,tag:t7YSBAqzpaxe+BWKxTRpMQ==,type:str]
+    pgp:
+        - created_at: "2022-09-22T08:15:49Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQEMA6z+tHR/duVIAQf9EtynBgsztEPhVBkjRZ9huZDusjprSyvsNcpy8fwMKL1d
+            ENVLXBTEwaw64GR6q3JNFEoIcigGQEHd9lZEYq23Fm5BDGdOjrGOuozHTK4e2ueX
+            eqqITcpU58OiYymFFnYA1S+VsBgc3ag2TsU9rvx8wGzKedeqOXPt6aMs0AjUpusQ
+            hZ4JnNhbzk+LMv7PgUBOLMaS92O8zb6EiQLe7gzaDHtZ0pW0cY7N2n21bK9pzHva
+            DA4mzOwU29N3eBUumvIE7iitZhcSH6SCRXZ3ax0EGG+bUsebMRoILL5qWHqthTfS
+            GRtrLpZys5q9K2Q7mvIDCcvwh8XJ9i52Ma7hdIAaKtJeATWqM8nuqoeX4eWXHHta
+            uSDz2Y4OWrS0Lba3B00bZUeqHJeftbiviGc8oGFQBHfoTQszJ/At3NLU++/6Vwdl
+            NtHfXVnb7SeJpQOR1t9HPr6L92H4u/5uX8IFegGZbA==
+            =oy6A
+            -----END PGP MESSAGE-----
+          fp: 2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4
+    encrypted_regex: ^data$
+    version: 3.7.3
