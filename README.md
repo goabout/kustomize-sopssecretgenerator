@@ -135,28 +135,77 @@ files:
 
 Like SecretGenerator, SopsSecretGenerator supports the [generatorOptions](https://kubernetes-sigs.github.io/kustomize/api-reference/kustomization/generatoroptions/) fields. Additionally, labels and annotations are copied over to the Secret. Data key-values ("envs") can be read from dotenv, INI, YAML and JSON files. If the data is a file and the Secret data key needs to be different from the filename, you can specify the key by adding `desiredKey=filename` instead of just the filename.
 
-An example showing all options:
+An example showing all supported SecretGenerator options:
+```yaml
+apiVersion: goabout.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  name: my-secret
+  labels:
+    app: my-app
+  annotations:
+    create-by: me
+behavior: create
+disableNameSuffixHash: true
+envs:
+  - secret-vars.env
+  - secret-vars.ini
+  - secret-vars.yaml
+  - secret-vars.json
+files:
+  - secret-file1.txt
+  - secret-file2.txt=secret-file2.sops.txt
+type: Opaque
+```
 
-    apiVersion: goabout.com/v1beta1
-    kind: SopsSecretGenerator
-    metadata:
-      name: my-secret
-      labels:
-        app: my-app
-      annotations:
-        create-by: me
-    behavior: create
-    disableNameSuffixHash: true
-    envs:
-      - secret-vars.env
-      - secret-vars.ini
-      - secret-vars.yaml
-      - secret-vars.json
-    files:
-      - secret-file1.txt
-      - secret-file2.txt=secret-file2.sops.txt
-    type: Opaque
+In addition to the `envs` and `files` SecretGenerator facilities, SopsSecretGenerator also supports sops decryption of entire objects as part of a single invocation, acting as a pipeline that can pass through arbitrary encrypted data as individual objects to kustomize or other KRM pipelines. This allows decrypting of other forms of static secret data, and can function as a more secure version of the SecretGenerator `literals` facility and allow management of more exotic secrets and other arbitrary type you need to encrypt.
 
+For example, first create an encrypted Secret with sops:
+```bash
+kubectl create secret --dry-run ... >mysecret.yaml
+sops -e -i --encrypted-regex='^data$' mysecret.yaml
+```
+
+Then create a SopsSecretGenerator that will decrypt it:
+```yaml
+apiVersion: goabout.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  name: passthrough
+objects:
+  - mysecret.yaml
+  - encryptedConfigMap.yaml
+```
+
+The result of running SopsSecretGenerator in this case would be the decrypted versions of `mysecret.yaml` and `encryptedConfigMap.yaml`.
+
+The `objects` section can be used along side `envs` and `files` as well:
+```yaml
+apiVersion: goabout.com/v1beta1
+kind: SopsSecretGenerator
+metadata:
+  name: my-secret
+  labels:
+    app: my-app
+  annotations:
+    create-by: me
+behavior: create
+disableNameSuffixHash: true
+envs:
+  - secret-vars.env
+  - secret-vars.ini
+  - secret-vars.yaml
+  - secret-vars.json
+files:
+  - secret-file1.txt
+  - secret-file2.txt=secret-file2.sops.txt
+objects:
+  - otherSecret.yaml
+  - encryptedConfigMap.yaml
+type: Opaque
+```
+
+This will generate the Secret called `my-secret` and also append decrypted copies of `otherSecret.yaml` and `encryptedConfigMap.yaml`
 
 ## Using SopsSecretsGenerator with ArgoCD
 
