@@ -126,7 +126,7 @@ func main() {
 // generateKRMManifest reads ResourceList with SopsSecretGenerator items
 // and returns ResourceList with Secret items.
 func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
-	var generatedSecrets []*fn.KubeObject
+	var generatedSecrets fn.KubeObjects
 
 	for _, sopsSecretGeneratorManifest := range rl.Items {
 		secretManifest := generateSecretManifest([]byte(sopsSecretGeneratorManifest.String()))
