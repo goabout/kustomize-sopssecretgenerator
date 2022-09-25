@@ -118,7 +118,15 @@ func main() {
 			usage()
 		}
 
-		secretManifest := generateSecretManifest(sopsSecretGeneratorManifest)
+		secretManifest, err := processSopsSecretGenerator(sopsSecretGeneratorManifest)
+		if err != nil {
+			if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
+				_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
+			} else {
+				_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			}
+			os.Exit(2)
+		}
 		fmt.Print(secretManifest)
 	}
 }
@@ -126,13 +134,18 @@ func main() {
 // generateKRMManifest reads ResourceList with SopsSecretGenerator items
 // and returns ResourceList with Secret items.
 func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
-	var generatedSecrets []*fn.KubeObject
+	var generatedSecrets fn.KubeObjects
 
 	for _, sopsSecretGeneratorManifest := range rl.Items {
-		secretManifest := generateSecretManifest([]byte(sopsSecretGeneratorManifest.String()))
+		secretManifest, err := processSopsSecretGenerator([]byte(sopsSecretGeneratorManifest.String()))
+		if err != nil {
+			rl.LogResult(err)
+			return false, err
+		}
 
 		secretKubeObject, err := fn.ParseKubeObject([]byte(secretManifest))
 		if err != nil {
+			rl.LogResult(err)
 			return false, err
 		}
 
@@ -142,19 +155,6 @@ func generateKRMManifest(rl *fn.ResourceList) (bool, error) {
 	rl.Items = generatedSecrets
 
 	return true, nil
-}
-
-func generateSecretManifest(manifestContent []byte) string {
-	output, err := processSopsSecretGenerator(manifestContent)
-	if err != nil {
-		if sopsErr, ok := errors.Cause(err).(sops.UserError); ok {
-			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n%s\n", err, sopsErr.UserError())
-		} else {
-			_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		}
-		os.Exit(2)
-	}
-	return output
 }
 
 func processSopsSecretGenerator(manifestContent []byte) (string, error) {
@@ -269,18 +269,12 @@ func parseEnvSources(sources []string, data kvMap) error {
 }
 
 func parseEnvSource(source string, data kvMap) error {
-	content, err := ioutil.ReadFile(source)
+	decrypted, err := decryptFile(source)
 	if err != nil {
-		return errors.Wrap(err, "could not read file")
+		return err
 	}
 
-	format := formats.FormatForPath(source)
-	decrypted, err := decrypt.DataWithFormat(content, format)
-	if err != nil {
-		return errors.Wrap(err, "sops could not decrypt")
-	}
-
-	switch format {
+	switch formats.FormatForPath(source) {
 	case formats.Dotenv:
 		err = parseDotEnvContent(decrypted, data)
 	case formats.Yaml:
@@ -369,20 +363,28 @@ func parseFileSources(sources []string, data kvMap) error {
 	return nil
 }
 
+func decryptFile(source string) ([]byte, error) {
+	content, err := ioutil.ReadFile(source)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not read file")
+	}
+
+	decrypted, err := decrypt.DataWithFormat(content, formats.FormatForPath(source))
+	if err != nil {
+		return nil, errors.Wrap(err, "sops could not decrypt")
+	}
+	return decrypted, nil
+}
+
 func parseFileSource(source string, data kvMap) error {
 	key, fn, err := parseFileName(source)
 	if err != nil {
 		return err
 	}
 
-	content, err := ioutil.ReadFile(fn)
+	decrypted, err := decryptFile(fn)
 	if err != nil {
-		return errors.Wrap(err, "could not read file")
-	}
-
-	decrypted, err := decrypt.DataWithFormat(content, formats.FormatForPath(source))
-	if err != nil {
-		return errors.Wrap(err, "sops could not decrypt")
+		return err
 	}
 
 	data[key] = base64.StdEncoding.EncodeToString(decrypted)

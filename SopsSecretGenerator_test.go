@@ -63,44 +63,64 @@ func setupGnuPG() error {
 
 func Test_GenerateKRMManifest(t *testing.T) {
 	type args struct {
-		rlFile    string
-		itemIndex int
+		rlFile string
+	}
+	type wanted struct {
+		items []string
+		err   bool
 	}
 	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr bool
+		name string
+		args args
+		want wanted
 	}{
 		{
-			"SecretFromEnv",
-			args{"testdata/krm-function-input.yaml", 0},
-			strings.TrimLeft(dedent.Dedent(`
-				apiVersion: v1
-				kind: Secret
-				metadata:
-				  name: secret-from-env
-				  annotations:
-				    config.k8s.io/id: "2"
-				data:
-				  VAR_ENV: dmFsX2Vudg==
-			`), "\n"),
-			false,
+			"Multiple inputs",
+			args{"testdata/krm-function-input.yaml"},
+			wanted{[]string{
+				strings.TrimLeft(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					  name: secret-from-env
+					  annotations:
+					    config.k8s.io/id: "2"
+					data:
+					  VAR_ENV: dmFsX2Vudg==
+				`), "\n"),
+				strings.TrimLeft(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					  name: secret-from-file
+					  annotations:
+					    config.k8s.io/id: "1"
+					data:
+					  file.txt: c2VjcmV0Cg==
+				`), "\n"),
+			}, false},
 		},
 		{
-			"SecretFromFile",
-			args{"testdata/krm-function-input.yaml", 1},
-			strings.TrimLeft(dedent.Dedent(`
-				apiVersion: v1
-				kind: Secret
-				metadata:
-				  name: secret-from-file
-				  annotations:
-				    config.k8s.io/id: "1"
-				data:
-				  file.txt: c2VjcmV0Cg==
-			`), "\n"),
-			false,
+			"Single input",
+			args{"testdata/krm-combined.yaml"},
+			wanted{[]string{
+				strings.TrimLeft(dedent.Dedent(`
+					apiVersion: v1
+					kind: Secret
+					metadata:
+					  name: combined
+					  annotations:
+					    config.k8s.io/id: "1"
+					data:
+					  VAR_ENV: dmFsX2Vudg==
+					  file.txt: c2VjcmV0Cg==
+				`), "\n"),
+			}, false},
+		},
+		{
+			"Malformed input",
+			args{"testdata/krm-error.yaml"},
+			wanted{[]string{}, true},
 		},
 	}
 	for _, tt := range tests {
@@ -108,14 +128,23 @@ func Test_GenerateKRMManifest(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
 				in, _ := ioutil.ReadFile(tt.args.rlFile)
 				out, err := fn.Run(fn.ResourceListProcessorFunc(generateKRMManifest), in)
-				if (err != nil) != tt.wantErr {
-					t.Errorf("generateKRMManifest() error = %v, wantErr %v", err, tt.wantErr)
+				if (err != nil) != tt.want.err {
+					t.Errorf("generateKRMManifest() error = %v, want.err %v", err, tt.want.err)
+				}
+				if err != nil {
 					return
 				}
 				rl, _ := fn.ParseResourceList(out)
-				got := fmt.Sprint(rl.Items[tt.args.itemIndex])
-				if !reflect.DeepEqual(got, tt.want) {
-					t.Errorf("generateKRMManifest() got = %v, want %v", got, tt.want)
+				got := rl.Items
+				if len(got) != len(tt.want.items) {
+					t.Errorf("generateKRMManifest()\ngot = %v\nwant = %v", got, tt.want.items)
+					return
+				}
+				for i, item := range tt.want.items {
+					want, _ := fn.ParseKubeObject([]byte(item))
+					if fmt.Sprintln(got[i]) != fmt.Sprintln(want) {
+						t.Errorf("generateKRMManifest()\ngot[%d] = %v\nwant = %v", i, got[i], want)
+					}
 				}
 			})
 		})
