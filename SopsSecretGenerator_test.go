@@ -15,7 +15,7 @@ import (
 	"github.com/GoogleContainerTools/kpt-functions-sdk/go/fn"
 	"github.com/lithammer/dedent"
 	"github.com/pkg/errors"
-	"go.mozilla.org/sops/v3/pgp"
+	"github.com/getsops/sops/v3/pgp"
 )
 
 const testkeyFingerprint = "2D2483DF73A3A0FAEE3C2A695BDC395360CE8FF4"
@@ -581,9 +581,9 @@ func Test_parseFileSource(t *testing.T) {
 		wantErr bool
 	}{
 		{"Yaml", args{"testdata/file.yaml"}, kvMap{"file.yaml": b64("var: secret\n")}, false},
-		{"Json", args{"testdata/file.json"}, kvMap{"file.json": b64("{\n\t\"var\": \"secret\"\n}")}, false},
+		{"Json", args{"testdata/file.json"}, kvMap{"file.json": b64("{\n\t\"var\": \"secret\"\n}\n")}, false},
 		{"Env", args{"testdata/file.env"}, kvMap{"file.env": b64("VAR=secret\n")}, false},
-		{"Ini", args{"testdata/file.ini"}, kvMap{"file.ini": b64("[section]\nvar = secret\n\n")}, false},
+		{"Ini", args{"testdata/file.ini"}, kvMap{"file.ini": b64("[section]\nvar = secret\n")}, false},
 		{"Binary", args{"testdata/file.txt"}, kvMap{"file.txt": b64("secret\n")}, false},
 		{"BinaryRenamed", args{"renamed.txt=testdata/file.txt"}, kvMap{"renamed.txt": b64("secret\n")}, false},
 		{"MissingFile", args{"testdata/missing.txt"}, kvMap{}, true},
